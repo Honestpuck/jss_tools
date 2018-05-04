@@ -273,7 +273,7 @@ def policy(rec, keys=_pol_keys):
         dict.update( {key[1] : value})
     # build list of packages in policy
     paks = []
-    if dict['pak_count'] == 0
+    if dict['pak_count'] == 0:
         paks = [None]
     else:
         for pak in rec.find('package_configuration/packages/package'):
@@ -283,7 +283,7 @@ def policy(rec, keys=_pol_keys):
     dict.update( {'paks' : paks})
     # build list of scripts in policy
     scripts = []
-    if dict['script_count'] == 0
+    if dict['script_count'] == 0:
         scripts = [None]
     else:
         for script in rec.find('scripts/script'):
@@ -307,7 +307,7 @@ _script_keys = [
     ['script_contents', 'contents'],
 ]
 
-def script(rec, keys=_script_keys)
+def script(rec, keys=_script_keys):
     dict = {}
     for key in keys:
         value = rec.findtext(key[0])
