@@ -142,19 +142,19 @@ def apps(rec, ignore=_ignore_apps):
     which is an array of app names to ignore.
     '''
     dict = {}
-    for app in rec.find('software/applications/application'):
+    for app in rec.findall('software/applications/application'):
         nm = app.findtext('name').split('.')[0]
         if nm not in ignore:
             dict.update( { nm : app.findtext('version') } )
     return dict
 
-def attributes(computer):
+def attributes(rec):
     ''' Returns a dictionary of the computers extension attributes. Each is added
     twice so you can get the value by the attribute name or id. Only gives you
     the value, not the type.
     '''
     dict = {}
-    for attr in computer.find('extension_attributes/extension_attribute'):
+    for attr in rec.findall('extension_attributes/extension_attribute'):
         id = attr.findtext('id')
         nm = attr.findtext('name')
         type = attr.findtext('type')
@@ -162,15 +162,15 @@ def attributes(computer):
         if type == 'Number':
             eval = int(val)
         else:
-            eval = value
+            eval = val
         dict.update( { id: eval, nm: eval } )
     return dict
 
-def groups(computer):
+def groups(rec):
     ''' Returns an array of the computer groups computer belongs to.
     '''
     ar = []
-    for group in computer.find('groups_accounts/computer_group_memberships'):
+    for group in rec.find('groups_accounts/computer_group_memberships'):
         ar.append(group.text)
     return ar
 
@@ -188,7 +188,7 @@ def users(rec):
     ar = []
     for user in rec.find('groups_accounts/local_accounts'):
         dict = {}
-        if rec.findtext('name')[0] == '_':
+        if user.findtext('name')[0] == '_':
             break
         for key in _user_keys:
             dict.update( { key[1] : rec.findtext(key[0]) } )
@@ -273,10 +273,10 @@ def policy(rec, keys=_pol_keys):
         dict.update( {key[1] : value})
     # build list of packages in policy
     paks = []
-    if dict['pak_count'] == 0:
+    if dict['pak_count'] == '0':
         paks = [None]
     else:
-        for pak in rec.find('package_configuration/packages/package'):
+        for pak in rec.findall('package_configuration/packages/package'):
             for pak_key in _pol_pak_keys:
                 value = pak.findtext(pak_key)
                 paks.update( {pak_key : value})
@@ -286,7 +286,7 @@ def policy(rec, keys=_pol_keys):
     if dict['script_count'] == 0:
         scripts = [None]
     else:
-        for script in rec.find('scripts/script'):
+        for script in rec.findall('scripts/script'):
             for s_key in _pol_script_keys:
                 value = script.findtext(s_key)
                 scripts.update( {s_key : value})
