@@ -20,7 +20,8 @@ def Jopen():
     jss_prefs.password = getpass.getpass()
     return jss.JSS(jss_prefs)
 
-# list of general XML keys and a short form. Short form becomes dictioary key.
+# list of general XML keys and a short form. Short form becomes dictionary key.
+# this sort of thing is used a lot in here.
 _computer_keys = [
     # general
     ['general/id', 'id' ],          # JAMF ID
