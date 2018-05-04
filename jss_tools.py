@@ -1,8 +1,8 @@
 #
 # JSS_tools.py
 #
-# functions to turn a JSS computer record into  more useful
-# python variables, mostly dictionaries
+# functions to turn a JSS records into more useful
+# python variables, mostly dictionaries and arrays.
 #
 # Tony Williams (ARW)
 #
@@ -23,7 +23,7 @@ def Jopen():
     return jss.JSS(jss_prefs)
 
 # list of general XML keys and a short form. Short form becomes dictioary key.
-__XML_keys = [
+__computer_keys = [
     # general
     ['general/id', 'id' ],          # JAMF ID
     ['general/name', 'name' ],
@@ -66,16 +66,7 @@ __XML_keys = [
 ]
 
 # general information
-def info(*args):
-    ''' info(computer, keys)
-    Returns a dictionary when passed computer record and (optionally) an array
-    of XML tags and the dictionary key to use for
-    them - form ['general/id', 'id' ]
-    '''
-    if len(args) == 1:
-        keys = __XML_keys
-    else:
-        keys = args[1]
+def info(rec, keys=__computer_keys):
     dict = {}
     for key in keys:
         value = args[0].findtext(key[0])
@@ -239,7 +230,6 @@ __pol_keys = [
     ['package_configuration/packages/size', 'pak_count'],
     ['scripts/size', 'script_count'],
 ]
-
 __pol_pak_keys = [
     'id',
     'name',
@@ -248,7 +238,6 @@ __pol_pak_keys = [
     'feu',
     'autorun',
 ]
-
 __pol_script_keys = [
     'id',
     'name',
@@ -290,6 +279,27 @@ def policy(rec, keys=__pol_keys):
                 value = script.findtext(s_key)
                 scripts.update( {s_key : value})
     dict.update( {'scripts' : scripts})
+    return dict
+
+__script_keys = [
+    ['id', 'id'],
+    ['name', 'name'],
+    ['category', 'category'],
+    ['filename', 'filename'],
+    ['info', 'info'],
+    ['notes', 'notes'],
+    ['priority', 'priority'],
+    ['parameter/parameter4', 'par4'],
+    ['parameter/parameter5', 'par5'],
+    ['parameter/parameter6', 'par6'],
+    ['script_contents', 'contents'],
+]
+
+def script(rec, keys=__script_keys)
+    dict = {}
+    for key in keys:
+        value = rec.findtext(key[0])
+        dict.update( {key[1] : value})
     return dict
 
 # thanks to vfuse for this function
