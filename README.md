@@ -4,6 +4,8 @@ This is a collection of small tool routines to make working with the data return
 
 At their core they turn the XML from the JSS into python data structures.
 
+**This is currently under heavy development and shouldn't be used for anything but testing of itself**
+
 `info(record, keys)` is passed a computer record and returns a dictionary of general information about the computer. It has a default list of information it returns but you can optionally pass it your own.
 
 `apps(computer, ignore)` returns a dictionary of
@@ -12,6 +14,8 @@ the apps installed. Key is the name and value is version. It ignores the Apple a
 `attributes(computer)` returns a dictionary of the computers extension attributes. Each is added twice so you can get the value by the attribute name or id. Only gives you the value, not the type.
 
 `groups(computer)` returns an array of the groups the computer is a member of.
+
+`users(computer)` returns an array containing a dict for each user on the computer. It ignores those whose name begins with '_'.
 
 `package(pak, keys)` returns a dictionary of info about a package.
 

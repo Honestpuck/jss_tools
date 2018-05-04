@@ -12,8 +12,6 @@
 # required for jss
 import jss
 import getpass
-# required for colored
-import os
 
 def Jopen():
     ''' Open a connection to the JSS. Asks for your password, returns connector
@@ -23,7 +21,7 @@ def Jopen():
     return jss.JSS(jss_prefs)
 
 # list of general XML keys and a short form. Short form becomes dictioary key.
-__computer_keys = [
+_computer_keys = [
     # general
     ['general/id', 'id' ],          # JAMF ID
     ['general/name', 'name' ],
@@ -66,15 +64,14 @@ __computer_keys = [
 ]
 
 # general information
-def info(rec, keys=__computer_keys):
+def info(rec, keys=_computer_keys):
     dict = {}
     for key in keys:
-        value = args[0].findtext(key[0])
-        dict.update( {key[1] : value})
+        dict.update( { key[1] : rec.findtext(key[0]) } )
     return dict
 
 # apps to ignore in app list (Apple apps)
-__ignore_apps = [
+_ignore_apps = [
     # Standard Apple apps
     'Activity Monitor',
     'AirPort Utility',
@@ -137,18 +134,17 @@ __ignore_apps = [
 #     'Skype for Business',
 ]
 
-def apps(rec, ignore=__ignore_apps):
+def apps(rec, ignore=_ignore_apps):
     ''' apps(computer, ignore)
     Returns a dictionary of the apps installed. Key is name and value is version.
     It ignores the Apple apps or the apps listed in the optional paramater 'ignore',
     which is an array of app names to ignore.
     '''
     dict = {}
-    for app in rec.findall('software/applications/application'):
+    for app in rec.find('software/applications/application'):
         nm = app.findtext('name').split('.')[0]
-        vers = app.findtext('version')
         if nm not in ignore:
-            dict.update({nm : vers})
+            dict.update( { nm : app.findtext('version') } )
     return dict
 
 def attributes(computer):
@@ -157,7 +153,7 @@ def attributes(computer):
     the value, not the type.
     '''
     dict = {}
-    for attr in computer.findall('extension_attributes/extension_attribute'):
+    for attr in computer.find('extension_attributes/extension_attribute'):
         id = attr.findtext('id')
         nm = attr.findtext('name')
         type = attr.findtext('type')
@@ -166,21 +162,39 @@ def attributes(computer):
             eval = int(val)
         else:
             eval = value
-        dict.update({id: eval, nm: eval})
+        dict.update( { id: eval, nm: eval } )
     return dict
 
 def groups(computer):
     ''' Returns an array of the computer groups computer belongs to.
     '''
-    # groups is borked somehow so handle differently
     ar = []
-    ls = computer.findall('groups_accounts/computer_group_memberships')
-    ll = ls[0]
-    for group in ll:
+    for group in computer.find('groups_accounts/computer_group_memberships'):
         ar.append(group.text)
     return ar
 
-__pak_keys = [
+_user_keys = [
+    'name',
+    'realname',
+    'uid',
+    'home',
+    'home_size_mb',
+    'administrator',
+    'file_vault_enabled',
+]
+
+def users(rec):
+    ar = []
+    for user in rec.find('groups_accounts/local_accounts'):
+        dict = {}
+        if rec.findtext('name')[0] == '_':
+            break
+        for key in _user_keys:
+            dict.update( { key[1] : rec.findtext(key[0]) } )
+        ar.append(dict)
+    return ar
+
+_pak_keys = [
     ['id', 'id'],
     ['name', 'name'],
     ['category', 'category'],
@@ -202,14 +216,13 @@ __pak_keys = [
     ['send_notification', 'send_not'],
 ]
 
-def package(rec, keys=__pak_keys):
+def package(rec, keys=_pak_keys):
     dict = {}
     for key in keys:
-        value = rec.findtext(key[0])
-        dict.update( {key[1] : value})
+        dict.update( {key[1] : rec.findtext(key[0])})
     return dict
 
-__pol_keys = [
+_pol_keys = [
     ['general/id', 'id'],
     ['general/name', 'name'],
     ['general/enabled', 'enabled'],
@@ -230,7 +243,7 @@ __pol_keys = [
     ['package_configuration/packages/size', 'pak_count'],
     ['scripts/size', 'script_count'],
 ]
-__pol_pak_keys = [
+_pol_pak_keys = [
     'id',
     'name',
     'action',
@@ -238,7 +251,7 @@ __pol_pak_keys = [
     'feu',
     'autorun',
 ]
-__pol_script_keys = [
+_pol_script_keys = [
     'id',
     'name',
     'priority',
@@ -252,7 +265,7 @@ __pol_script_keys = [
     'paramater11',
 ]
 
-def policy(rec, keys=__pol_keys):
+def policy(rec, keys=_pol_keys):
     dict = {}
     for key in keys:
         value = rec.findtext(key[0])
@@ -262,9 +275,8 @@ def policy(rec, keys=__pol_keys):
     if dict['pak_count'] == 0
         paks = [None]
     else:
-        for ar in rec.findall('package_configuration/packages/package'):
-            pak = ar[0]
-            for pak_key in __pol_pak_keys:
+        for pak in rec.find('package_configuration/packages/package'):
+            for pak_key in _pol_pak_keys:
                 value = pak.findtext(pak_key)
                 paks.update( {pak_key : value})
     dict.update( {'paks' : paks})
@@ -273,15 +285,14 @@ def policy(rec, keys=__pol_keys):
     if dict['script_count'] == 0
         scripts = [None]
     else:
-        for ar in rec.findall('scripts/script'):
-            script = ar[0]
-            for s_key in __pol_script_keys:
+        for script in rec.find('scripts/script'):
+            for s_key in _pol_script_keys:
                 value = script.findtext(s_key)
                 scripts.update( {s_key : value})
     dict.update( {'scripts' : scripts})
     return dict
 
-__script_keys = [
+_script_keys = [
     ['id', 'id'],
     ['name', 'name'],
     ['category', 'category'],
@@ -295,35 +306,13 @@ __script_keys = [
     ['script_contents', 'contents'],
 ]
 
-def script(rec, keys=__script_keys)
+def script(rec, keys=_script_keys)
     dict = {}
     for key in keys:
         value = rec.findtext(key[0])
         dict.update( {key[1] : value})
     return dict
 
-# thanks to vfuse for this function
-def colored(text, color=None):
-    ''' return 'text' surrounded by ANSI color commands to set
-    text to 'color'
-    '''
-    if not os.getenv('ANSI_COLORS_DISABLED'):
-        fmt_str = '\033[%dm'
-        reset = '\033[0m'
-        colors = {
-            'grey': 30,
-            'gray': 30,
-            'red': 31,
-            'green': 32,
-            'yellow': 33,
-            'blue': 34,
-            'magenta': 35,
-            'cyan': 36,
-            'white': 37,
-        }
-        if color is not None:
-            text = fmt_str % (colors[color]) + text + reset
-    return text
 
 
 
