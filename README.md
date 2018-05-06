@@ -1,6 +1,6 @@
 ### JSS_tools
 
-This is a collection of small tool routines to make working with the data returned by python-jss.
+This is a collection of small tool routines to make working with the data returned by python-jss easier.
 
 At their core they turn the XML from the JSS into python data structures.
 
@@ -11,7 +11,7 @@ defaults preferences but asks for your password so you don't need to have it in 
 
 #### Information from a computer record
 
-`info(record, keys)` is passed a computer record and returns a dictionary of general information about the computer. It has a default list of information it returns but you can optionally pass it your own.
+`info(computer, keys)` is passed a computer record and returns a dictionary of general information about the computer. It has a default list of information it returns but you can optionally pass it your own.
 
 `apps(computer, ignore)` returns a dictionary of
 the apps installed. Key is the name and value is version. It ignores the Apple apps or the apps listed in the optional paramater 'ignore',
@@ -26,7 +26,7 @@ the apps installed. Key is the name and value is version. It ignores the Apple a
 
 `package(pak, keys)` returns a dictionary of info about a package.
 
-`policy(policy, keys)` returns a dictionary of info about a policy. The key 'paks' is an array of dictionaries with info on the packages included in the policy and the key 'scripts' does the same for scripts.
+`policy(policy, keys)` returns a dictionary of info about a policy. The key `'paks'` is an array of dictionaries with info on the packages included in the policy and the key `'scripts'` does the same for scripts.
 
 `script(script, keys)` returns a dictionary of info about a script.
 

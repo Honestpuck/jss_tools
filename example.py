@@ -25,17 +25,17 @@ for computer in computer_list:
             break
 
 ## new way
-for computer in computer_list:
-    this = computer.retrieve()
-    this_attr = t.attributes(this)
-    if this_attr{'SIP Status'} == 'disabled':
-        non_compliance(this, 'SIP status')
+for record in computer_list:
+    computer = record.retrieve()
+    attribute = t.attributes(computer)
+    if attribute{'SIP Status'} == 'disabled':
+        non_compliance(computer, 'SIP status')
         break
-    if this_attr{'Carbon Black Running'} in ['disabled', 'missing']:
-        non_compliance(this, 'Carbon Black')
+    if attribute{'Carbon Black Running'} in ['disabled', 'missing']:
+        non_compliance(computer, 'Carbon Black')
         break
-    if this_attr{'Internet Sharing'} == 'Enabled':
-        non_compliance(this, 'Internet Sharing')
+    if attribute{'Internet Sharing'} == 'Enabled':
+        non_compliance(computer, 'Internet Sharing')
         break
 
 def non_compliance(rec, reason):
