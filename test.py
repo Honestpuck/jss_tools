@@ -33,6 +33,7 @@ else:
 if info_A['serial'] == info_B['serial'] and info_B['serial'] == info_old:
     print "info: passed"
 
+# test apps
 a_ignore = [
     'Activity Monitor',
     'AirPort Utility',
@@ -70,5 +71,30 @@ if 'Chess' in apps_B:
 else:
     print "apps: ignore passed"
 
-if apps_A['Self Service'] == apps_B['Self Service'] and apps_A['Self Service'] == apps_old_version:
-        print "apps: passed"
+if (apps_A['Self Service'] == apps_B['Self Service']
+        and apps_A['Self Service'] == apps_old_version):
+    print "apps: passed"
+
+# test attributes
+attributes = tools.attributes(one_computer)
+att_test_key = attributes.keys[-3]  # third from the end should be a name.
+
+for attr in rec.findall('extension_attributes/extension_attribute'):
+    if attr.findtext('name') == att_test_key:
+        attr_val == attr.findtext('value')
+
+if attributes[att_test_key] == attr_val:
+    print "attributes: passed"
+
+# test users
+u = tools.users(one_computer)
+
+u_name = u[1]['name']
+u_uid = u[1]['uid']
+
+for usr in one_computer.find('groups_accounts/local_accounts'):
+    if usr.findtext('name') == u_name:
+        old_uid = usr.findtext('uid')
+
+if old_uid == u_uid:
+    print "users: passed"

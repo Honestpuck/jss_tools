@@ -166,13 +166,8 @@ def attributes(rec):
     for attr in rec.findall('extension_attributes/extension_attribute'):
         id = attr.findtext('id')
         nm = attr.findtext('name')
-        type = attr.findtext('type')
         val = attr.findtext('value')
-        if type == 'Number':
-            eval = int(val)
-        else:
-            eval = val
-        dict.update({id: eval, nm: eval})
+        dict.update({id: val, nm: val})
     return dict
 
 
@@ -198,13 +193,13 @@ _user_keys = [
 
 def users(rec):
     ar = []
-    for user in rec.find('groups_accounts/local_accounts'):
-        dict = {}
-        if user.findtext('name')[0] == '_':
-            break
-        for key in _user_keys:
-            dict.update({key: rec.findtext(key)})
-        ar.append(dict)
+    for u in rec.find('groups_accounts/local_accounts'):
+        if u.findtext('name')[0] is not '_':
+            dict = {}
+            for key in _user_keys:
+                dict.update({key: u.findtext(key)})
+            print dict
+            ar.append(dict)
     return ar
 
 
