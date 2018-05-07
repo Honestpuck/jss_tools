@@ -202,7 +202,7 @@ def users(rec):
 
 
 _cert_keys = [
-    ['common_name', 'name'],
+    ['common_name', 'common'],
     ['identity', 'identity'],
     ['expires_utc', 'utc'],
     ['expires_epoch', 'epoch'],
@@ -212,10 +212,10 @@ _cert_keys = [
 
 def certificates(rec):
     ar = []
-    for cert in rec.findall('cetificates/certificate'):
+    for cert in rec.findall('certificates/certificate'):
         dict = {}
         for key in _cert_keys:
-            dict.update({key[1]: rec.findtext(key[0])})
+            dict.update({key[1]: cert.findtext(key[0])})
             ar.append(dict)
     return ar
 

@@ -88,7 +88,6 @@ if attrib[attr_test_key] == attr_val:
 
 # test users
 u = tools.users(one_computer)
-
 u_name = u[1]['name']
 u_uid = u[1]['uid']
 
@@ -98,3 +97,16 @@ for usr in one_computer.find('groups_accounts/local_accounts'):
 
 if old_uid == u_uid:
     print "users: passed"
+
+# test certificates
+c = tools.certificates(one_computer)[2]
+common = c['common']
+c_epoch = c['epoch']
+
+for cert in one_computer.findall('certificates/certificate'):
+    if cert.findtext('common_name') == common:
+        old_epoch = cert.findtext('expires_epoch')
+
+if c_epoch == old_epoch:
+    print "certificates: passed"
+
