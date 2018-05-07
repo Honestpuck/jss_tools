@@ -7,7 +7,7 @@ At their core they turn the XML from the JSS into python data structures.
 **This is currently under heavy development and shouldn't be used for anything but testing of itself. It may well be broken at any given time**
 
 `Jopen()` opens a connection to the JSS. It uses the URL and user name in the
-defaults preferences but asks for your password so you don't need to have the password in a script or in the preferences. It returns the JSS instance.
+defaults preferences but asks for your password so you don't need to have the password in a script or in the preferences. It returns the JSS instance. It basically requires python-jss to be working.
 
 #### Information from a computer record
 
@@ -37,6 +37,14 @@ the apps installed. Key is the name and the value is the version. It ignores the
 #### Design decisions
 
 When working with the JSS the most expensive part of the operation is always the query to the JSS. This is why none of these routines actually perform the query. I leave the decision about when to do it to you.
+
+#### examples.py
+
+A tiny file with an example of the old style and new style. For more examples look in `test.py`.
+
+#### tools_convert.py
+
+I've started working on some routines to take the string data and convert _that_ to python data. This is extremely limited at the moment, it's basically a proof of concept for later work.
 
 
 
