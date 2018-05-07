@@ -144,8 +144,7 @@ _ignore_apps = [
 
 
 def apps(rec, ignore=_ignore_apps):
-    ''' apps(computer, ignore)
-    Returns a dictionary of the apps installed. Key is name and value is
+    '''Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore.
     '''
@@ -158,7 +157,7 @@ def apps(rec, ignore=_ignore_apps):
 
 
 def attributes(rec):
-    ''' Returns a dictionary of the computers extension attributes. Each is
+    '''Returns a dictionary of the computers extension attributes. Each is
     added twice so you can get the value by the attribute name or id. Only
     gives you the value, not the type.
     '''
@@ -198,7 +197,6 @@ def users(rec):
             dict = {}
             for key in _user_keys:
                 dict.update({key: u.findtext(key)})
-            print dict
             ar.append(dict)
     return ar
 

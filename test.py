@@ -76,14 +76,14 @@ if (apps_A['Self Service'] == apps_B['Self Service']
     print "apps: passed"
 
 # test attributes
-attributes = tools.attributes(one_computer)
-att_test_key = attributes.keys[-3]  # third from the end should be a name.
+attrib = tools.attributes(one_computer)
+attr_test_key = attrib.keys()[-3]  # third from the end should be a name.
 
-for attr in rec.findall('extension_attributes/extension_attribute'):
-    if attr.findtext('name') == att_test_key:
-        attr_val == attr.findtext('value')
+for attr in one_computer.findall('extension_attributes/extension_attribute'):
+    if attr.findtext('name') == attr_test_key:
+        attr_val = attr.findtext('value')
 
-if attributes[att_test_key] == attr_val:
+if attrib[attr_test_key] == attr_val:
     print "attributes: passed"
 
 # test users

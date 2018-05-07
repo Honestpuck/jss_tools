@@ -14,15 +14,15 @@ defaults preferences but asks for your password so you don't need to have the pa
 `info(computer, keys)` is passed a computer record and returns a dictionary of general information about the computer. It has a default list of information it returns but you can optionally pass it your own.
 
 `apps(computer, ignore)` returns a dictionary of
-the apps installed. Key is the name and the value is the version. It ignores the Apple apps or the apps listed in the optional paramater 'ignore',
+the apps installed. Key is the name and the value is the version. It ignores the Apple apps or the apps listed in the optional paramater 'ignore' (an array of the names).
 
-`attributes(computer)` returns a dictionary of the computers extension attributes. Each is added twice so you can get the value by the attribute name or id. Only gives you the value, not the type.
+`attributes(computer)` returns a dictionary of the computer's extension attributes. Each is added twice so you can get the value by the attribute name or id. Only gives you the value, not the type.
 
 `groups(computer)` returns an array of the groups the computer is a member of.
 
 `users(computer)` returns an array containing a dictionary for each user on the computer. It ignores those whose name begins with '_'.
 
-`certificates(computer)` returns an array containing a dictionary for each cetificate on the compputer.
+`certificates(computer)` returns an array containing a dictionary for each cetificate on the computer.
 
 `profiles(computer)` returns an array containing a dictionary for each configuration profile on the computer.
 
@@ -44,7 +44,7 @@ A tiny file with an example of the old style and new style. For more examples lo
 
 #### tools_convert.py
 
-I've started working on some routines to take the string data and convert _that_ to python data. This is extremely limited at the moment, it's basically a proof of concept for later work.
+I've started working on some routines to take the string data and convert _that_ to python types. This is extremely limited at the moment, it's basically a proof of concept for later work.
 
 
 
