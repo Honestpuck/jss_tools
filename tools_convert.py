@@ -37,6 +37,3 @@ def info_convert(info):
     for cc in _info_convert_keys:
         info[cc[0]] = convert(cc)
     return info
-
-
-
