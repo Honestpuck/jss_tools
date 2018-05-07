@@ -20,7 +20,11 @@ the apps installed. Key is the name and value is version. It ignores the Apple a
 
 `groups(computer)` returns an array of the groups the computer is a member of.
 
-`users(computer)` returns an array containing a dict for each user on the computer. It ignores those whose name begins with '_'.
+`users(computer)` returns an array containing a dictionary for each user on the computer. It ignores those whose name begins with '_'.
+
+`certificates(computer)` returns an array containing a dictionary for each cetificate on the compputer.
+
+`profiles(computer)` returns an array containing a dictionary for each configuration profile on the computer.
 
 #### Other JSS records
 

@@ -217,7 +217,7 @@ _cert_keys = [
 ]
 
 
-def certificates(rec, keys=_cert_keys):
+def certificates(rec):
     ar = []
     for cert in rec.findall('cetificates/certificate'):
         dict = {}
