@@ -8,6 +8,10 @@ import jss_tools as tools
 
 jss = tools.Jopen()
 
+#
+# COMPUTER RECORD
+#
+
 # get computer list
 computers = jss.Computer()
 
@@ -26,9 +30,9 @@ info_B = tools.info(one_computer, c_keys)
 info_old = one_computer.find('general/serial_number').text
 
 if 'initial' in info_B:
-    print "info: keys failed"
+    print "info keys: failed"
 else:
-    print "info: keys passed"
+    print "info keys: passed"
 
 if info_A['serial'] == info_B['serial'] and info_B['serial'] == info_old:
     print "info: passed"
@@ -67,9 +71,9 @@ for app in one_computer.findall('software/applications/application'):
         apps_old_version = app.findtext('version')
 
 if 'Chess' in apps_B:
-    print "apps: ignore failed"
+    print "apps ignore: failed"
 else:
-    print "apps: ignore passed"
+    print "apps ignore: passed"
 
 if (apps_A['Self Service'] == apps_B['Self Service']
         and apps_A['Self Service'] == apps_old_version):
@@ -110,3 +114,26 @@ for cert in one_computer.findall('certificates/certificate'):
 if c_epoch == old_epoch:
     print "certificates: passed"
 
+#
+# OTHER RECORD TYPES
+#
+
+# test packages
+packages = jss.Package()
+one_pak = jss.Package(packages[15]['id'])
+pak = tools.package(one_pak)
+
+old_name = one_pak.findtext('name')
+
+if old_name == pak['name']:
+    print "package: passed"
+
+# test policies
+policies = jss.Policy()
+one_pol = jss.Policy(policies[3]['id'])
+pol = tools.policy(one_pol)
+
+old_name = one_pol.findtext('name')
+
+if old_name == pol['name']:
+    print "policy: passed"

@@ -28,11 +28,11 @@ the apps installed. Key is the name and the value is the version. It ignores the
 
 #### Other JSS records
 
-`package(pak, keys)` returns a dictionary of info about a package.
+`packages(pak, keys)` returns a dictionary of info about a package.
 
-`policy(policy, keys)` returns a dictionary of info about a policy. The key `'paks'` is an array of dictionaries with info on the packages included in the policy and the key `'scripts'` does the same for scripts.
+`policies(policy, keys)` returns a dictionary of info about a policy. The key `'paks'` is an array of dictionaries with info on the packages included in the policy and the key `'scripts'` does the same for scripts.
 
-`script(script, keys)` returns a dictionary of info about a script.
+`scripts(script, keys)` returns a dictionary of info about a script.
 
 #### Design decisions
 

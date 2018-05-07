@@ -305,14 +305,14 @@ _pol_script_keys = [
     'id',
     'name',
     'priority',
-    'paramater4',
-    'paramater5',
-    'paramater6',
-    'paramater7',
-    'paramater8',
-    'paramater9',
-    'paramater10',
-    'paramater11',
+    'parameter4',
+    'parameter5',
+    'parameter6',
+    'parameter7',
+    'parameter8',
+    'parameter9',
+    'parameter10',
+    'parameter11',
 ]
 
 
@@ -327,9 +327,11 @@ def policy(rec, keys=_pol_keys):
         paks = [None]
     else:
         for pak in rec.findall('package_configuration/packages/package'):
+            this_pak = {}
             for pak_key in _pol_pak_keys:
                 value = pak.findtext(pak_key)
-                paks.update({pak_key: value})
+                this_pak.update({pak_key: value})
+            paks.append(this_pak)
     dict.update({'paks': paks})
     # build list of scripts in policy
     scripts = []
@@ -337,9 +339,11 @@ def policy(rec, keys=_pol_keys):
         scripts = [None]
     else:
         for script in rec.findall('scripts/script'):
+            this_script = {}
             for s_key in _pol_script_keys:
                 value = script.findtext(s_key)
-                scripts.update({s_key: value})
+                this_script.update({s_key: value})
+            scripts.append(this_script)
     dict.update({'scripts': scripts})
     return dict
 
