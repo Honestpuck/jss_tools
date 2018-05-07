@@ -133,7 +133,7 @@ policies = jss.Policy()
 one_pol = jss.Policy(policies[3]['id'])
 pol = tools.policy(one_pol)
 
-old_name = one_pol.findtext('name')
+old_name = one_pol.findtext('general/name')
 
 if old_name == pol['name']:
     print "policy: passed"
