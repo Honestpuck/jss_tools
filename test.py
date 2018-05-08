@@ -5,6 +5,7 @@
 #
 
 import jss_tools as tools
+from random import randrange
 
 jss = tools.Jopen()
 
@@ -36,6 +37,9 @@ else:
 
 if info_A['serial'] == info_B['serial'] and info_B['serial'] == info_old:
     print "c_info: passed"
+else:
+    print "c_info: failed"
+
 
 # test apps
 a_ignore = [
@@ -78,10 +82,13 @@ else:
 if (apps_A['Self Service'] == apps_B['Self Service']
         and apps_A['Self Service'] == apps_old_version):
     print "c_apps: passed"
+else:
+    print "c_apps: failed"
+
 
 # test attributes
 attrib = tools.c_attributes(one_computer)
-attr_test_key = attrib.keys()[-3]  # third from the end should be a name.
+attr_test_key = attrib.keys()[0]
 
 for attr in one_computer.findall('extension_attributes/extension_attribute'):
     if attr.findtext('name') == attr_test_key:
@@ -89,6 +96,9 @@ for attr in one_computer.findall('extension_attributes/extension_attribute'):
 
 if attrib[attr_test_key] == attr_val:
     print "c_attributes: passed"
+else:
+    print "c_attributes: failed"
+
 
 # test users
 u = tools.c_users(one_computer)
@@ -101,6 +111,9 @@ for usr in one_computer.find('groups_accounts/local_accounts'):
 
 if old_uid == u_uid:
     print "c_users: passed"
+else:
+    print "c_users: failed"
+
 
 # test certificates
 c = tools.c_certificates(one_computer)[2]
@@ -113,6 +126,9 @@ for cert in one_computer.findall('certificates/certificate'):
 
 if c_epoch == old_epoch:
     print "c_certificates: passed"
+else:
+    print "c_certificates: failed"
+
 
 #
 # OTHER RECORD TYPES
@@ -127,16 +143,21 @@ old_name = one_pak.findtext('name')
 
 if old_name == pak['name']:
     print "package: passed"
+else:
+    print "package: failed"
+
 
 # test policies
 policies = jss.Policy()
-one_pol = jss.Policy(policies[3]['id'])
+one_pol = jss.Policy(policies[0]['id'])
 pol = tools.policy(one_pol)
 
 old_name = one_pol.findtext('general/name')
 
 if old_name == pol['name']:
     print "policy: passed"
+else:
+    print "policy: failed"
 
 if pol['script_count'] is not '0':
     sc_name = pol['scripts'][0]['name']
@@ -146,6 +167,8 @@ if pol['script_count'] is not '0':
             old_priority = scr.findtext('priority')
     if old_priority == sc_priority:
         print "policy scripts: passed"
+    else:
+        print "policy scripts: failed"
 
 if pol['pak_count'] is not '0':
     pak_name = pol['paks'][0]['name']
@@ -155,6 +178,9 @@ if pol['pak_count'] is not '0':
             old_id = pak.findtext('id')
     if old_id == pak_id:
         print "policy packages: passed"
+    else:
+        print "policy packages: failed"
+
 
 # test scripts
 scripts = jss.Script()
@@ -165,3 +191,28 @@ old_name = one_script.findtext('name')
 
 if old_name == script['name']:
     print "script: passed"
+else:
+    print "script: failed"
+# test computergroups
+
+computergroups = jss.ComputerGroup()
+one_c_group = jss.ComputerGroup(computergroups[2]['id'])
+c_group = tools.computergroup(one_c_group)
+
+old_name = one_c_group.findtext('name')
+
+if old_name == c_group['name']:
+    print "computergroup: passed"
+else:
+    print "computergroup: failed"
+
+if c_group['crit_count'] is not '0':
+    cg_name = c_group['criteria'][0]['name']
+    cg_value = c_group['criteria'][0]['value']
+    for cg in one_c_group.findall('criteria/criterion'):
+        if cg.findtext('name') == cg_name:
+            old_value = cg.findtext('value')
+    if old_value == cg_value:
+        print "computergroup criteria: passed"
+    else:
+        print "computergroup criteria: failed"

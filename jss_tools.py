@@ -13,6 +13,7 @@ returned by python-jss easier.
 
 At their core they turn the XML from the JSS into python data structures.
 '''
+
 # required for jss
 import jss
 import getpass
@@ -395,6 +396,7 @@ def script(script, keys=_script_keys):
         dict.update({key[1]: value})
     return dict
 
+
 _group_keys = [
     ['id', 'id'],
     ['name', 'name'],
@@ -409,7 +411,7 @@ _group_criteria_keys = [
     'name',
     'priority',
     'and_or',
-    'search_type'
+    'search_type',
     'value',
 ]
 
@@ -421,6 +423,7 @@ _group_computer_keys = [
     'serial',
 ]
 
+
 def computergroup(group):
     '''Returns a dictionary of info about a computergroup. The key 'criteria'
     contains an array of dictionaries with the group membership criteria and
@@ -431,17 +434,18 @@ def computergroup(group):
     for key in _group_keys:
         value = group.findtext(key[0])
         dict.update({key[1]: value})
-    return dict
+
     criteria = []
     if dict['crit_count'] == 0:
         criteria = [None]
     else:
         for criterion in group.findall('criteria/criterion'):
             this_crit = {}
-            for c_key in _group_crit_keys:
+            for c_key in _group_criteria_keys:
                 this_crit.update({c_key: criterion.findtext(c_key)})
             criteria.append(this_crit)
-    dict.update('criteria': crirteria)
+    dict.update({'criteria': criteria})
+
     computers = []
     if dict['computers_count'] == 0:
         computers = [None]
@@ -451,5 +455,5 @@ def computergroup(group):
             for c_key in _group_computer_keys:
                 this_comp.update({c_key: computer.findtext(c_key)})
             computers.append(this_crit)
-    dict.update('computers': computers')
-
+    dict.update({'computers': computers})
+    return dict
