@@ -4,8 +4,7 @@ This is a collection of small tool routines to make working with the data return
 
 At their core they turn the XML from the JSS into python data structures.
 
-**This is currently under heavy development and shouldn't be used for anything but testing of itself. It may well be broken at any given time**
-
+**This is currently under heavy development and shouldn't be used for anything but testing of itself. At the moment the `master` branch is working and passing
 `Jopen()` opens a connection to the JSS. It uses the URL and user name in the
 defaults preferences but asks for your password so you don't need to have the password in a script or in the preferences. It returns the JSS instance. It basically requires python-jss to be working.
 
@@ -28,15 +27,17 @@ the apps installed. Key is the name and the value is the version. It ignores the
 
 #### Other JSS records
 
-`packages(pak, keys)` returns a dictionary of info about a package.
+`package(pak, keys)` returns a dictionary of info about a package.
 
-`policies(policy, keys)` returns a dictionary of info about a policy. The key `'paks'` is an array of dictionaries with info on the packages included in the policy and the key `'scripts'` does the same for scripts.
+`policy(policy, keys)` returns a dictionary of info about a policy. The key `'paks'` is an array of dictionaries with info on the packages included in the policy and the key `'scripts'` does the same for scripts.
 
-`scripts(script, keys)` returns a dictionary of info about a script.
+`script(script, keys)` returns a dictionary of info about a script.
 
 #### Design decisions
 
 When working with the JSS the most expensive part of the operation is always the query to the JSS. This is why none of these routines actually perform the query. I leave the decision about when to do it to you.
+
+At the moment there are some data structures that are arrays of dictionaries. I'd appreciate feedback on perhaps changing this to dictionaries of dicitonaries with `id` as key for the outer dictionary.
 
 #### examples.py
 

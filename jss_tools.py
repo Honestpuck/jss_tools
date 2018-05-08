@@ -8,7 +8,11 @@
 #
 # 3 May 2018
 # v1.0
+'''This is a collection of small tool routines to make working with the data
+returned by python-jss easier.
 
+At their core they turn the XML from the JSS into python data structures.
+'''
 # required for jss
 import jss
 import getpass
@@ -71,10 +75,14 @@ _computer_keys = [
 
 
 # general information
-def info(rec, keys=_computer_keys):
+def info(computer, keys=_computer_keys):
+    '''Returns a a dictionary of general information about the computer.
+    It has a default list of information it returns but you can optionally
+    pass it your own.
+    '''
     dict = {}
     for key in keys:
-        dict.update({key[1]: rec.findtext(key[0])})
+        dict.update({key[1]: computer.findtext(key[0])})
     return dict
 
 
@@ -143,26 +151,26 @@ _ignore_apps = [
 ]
 
 
-def apps(rec, ignore=_ignore_apps):
+def apps(computer, ignore=_ignore_apps):
     '''Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore.
     '''
     dict = {}
-    for app in rec.findall('software/applications/application'):
+    for app in computer.findall('software/applications/application'):
         nm = app.findtext('name').split('.')[0]
         if nm not in ignore:
             dict.update({nm: app.findtext('version')})
     return dict
 
 
-def attributes(rec):
+def attributes(computer):
     '''Returns a dictionary of the computers extension attributes. Each is
     added twice so you can get the value by the attribute name or id. Only
     gives you the value, not the type.
     '''
     dict = {}
-    for attr in rec.findall('extension_attributes/extension_attribute'):
+    for attr in computer.findall('extension_attributes/extension_attribute'):
         id = attr.findtext('id')
         nm = attr.findtext('name')
         val = attr.findtext('value')
@@ -170,11 +178,11 @@ def attributes(rec):
     return dict
 
 
-def groups(rec):
+def groups(computer):
     ''' Returns an array of the computer groups computer belongs to.
     '''
     ar = []
-    for group in rec.find('groups_accounts/computer_group_memberships'):
+    for group in computer.find('groups_accounts/computer_group_memberships'):
         ar.append(group.text)
     return ar
 
@@ -190,9 +198,12 @@ _user_keys = [
 ]
 
 
-def users(rec):
+def users(computer):
+    '''Returns an array containing a dictionary for each user on the computer.
+    It ignores those whose name begins with '_'.
+    '''
     ar = []
-    for u in rec.find('groups_accounts/local_accounts'):
+    for u in computer.find('groups_accounts/local_accounts'):
         if u.findtext('name')[0] is not '_':
             dict = {}
             for key in _user_keys:
@@ -210,9 +221,12 @@ _cert_keys = [
 ]
 
 
-def certificates(rec):
+def certificates(computer):
+    '''Returns an array containing a dictionary for each cetificate on
+    the computer.
+    '''
     ar = []
-    for cert in rec.findall('certificates/certificate'):
+    for cert in computer.findall('certificates/certificate'):
         dict = {}
         for key in _cert_keys:
             dict.update({key[1]: cert.findtext(key[0])})
@@ -228,9 +242,13 @@ _prof_keys = [
 ]
 
 
-def profiles(rec, keys=_prof_keys):
+def profiles(computer, keys=_prof_keys):
+    '''Returns an array containing a dictionary for each configuration
+    profile on the computer.
+    '''
     ar = []
-    for profile in rec.findall('configuration_profiles/configuration_profile'):
+    for profile in computer.findall(
+            'configuration_profiles/configuration_profile'):
         dict = {}
         for key in _prof_keys:
             dict.update({key: profile.findtext(key)})
@@ -263,10 +281,12 @@ _pak_keys = [
 ]
 
 
-def package(rec, keys=_pak_keys):
+def package(package, keys=_pak_keys):
+    '''Returns a dictionary of info about a package.
+    '''
     dict = {}
     for key in keys:
-        dict.update({key[1]: rec.findtext(key[0])})
+        dict.update({key[1]: package.findtext(key[0])})
     return dict
 
 
@@ -316,17 +336,21 @@ _pol_script_keys = [
 ]
 
 
-def policy(rec, keys=_pol_keys):
+def policy(policy, keys=_pol_keys):
+    '''Returns a dictionary of info about a policy. The key `'paks'` is an
+    array of dictionaries with info on the packages included in the policy
+    and the key `'scripts'` does the same for scripts.
+    '''
     dict = {}
     for key in keys:
-        value = rec.findtext(key[0])
+        value = policy.findtext(key[0])
         dict.update({key[1]: value})
     # build list of packages in policy
     paks = []
     if dict['pak_count'] == '0':
         paks = [None]
     else:
-        for pak in rec.findall('package_configuration/packages/package'):
+        for pak in policy.findall('package_configuration/packages/package'):
             this_pak = {}
             for pak_key in _pol_pak_keys:
                 value = pak.findtext(pak_key)
@@ -338,7 +362,7 @@ def policy(rec, keys=_pol_keys):
     if dict['script_count'] == '0':
         scripts = [None]
     else:
-        for script in rec.findall('scripts/script'):
+        for script in policy.findall('scripts/script'):
             this_script = {}
             for s_key in _pol_script_keys:
                 value = script.findtext(s_key)
@@ -363,9 +387,11 @@ _script_keys = [
 ]
 
 
-def script(rec, keys=_script_keys):
+def script(script, keys=_script_keys):
+    '''Returns a dictionary of info about a script.
+    '''
     dict = {}
     for key in keys:
-        value = rec.findtext(key[0])
+        value = script.findtext(key[0])
         dict.update({key[1]: value})
     return dict
