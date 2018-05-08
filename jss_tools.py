@@ -365,8 +365,7 @@ def policy(policy, keys=_pol_keys):
         for script in policy.findall('scripts/script'):
             this_script = {}
             for s_key in _pol_script_keys:
-                value = script.findtext(s_key)
-                this_script.update({s_key: value})
+                this_script.update({s_key: script.findtext(s_key)})
             scripts.append(this_script)
     dict.update({'scripts': scripts})
     return dict
@@ -395,3 +394,62 @@ def script(script, keys=_script_keys):
         value = script.findtext(key[0])
         dict.update({key[1]: value})
     return dict
+
+_group_keys = [
+    ['id', 'id'],
+    ['name', 'name'],
+    ['is_smart', 'smart'],
+    ['site/id', 'site_id'],
+    ['site/name', 'site_name'],
+    ['criteria/size', 'crit_count'],
+    ['computers/size', 'computers_count'],
+]
+
+_group_criteria_keys = [
+    'name',
+    'priority',
+    'and_or',
+    'search_type'
+    'value',
+]
+
+_group_computer_keys = [
+    'id',
+    'name',
+    'mac_address',
+    'alt_mac_address',
+    'serial',
+]
+
+def computergroup(group):
+    '''Returns a dictionary of info about a computergroup. The key 'criteria'
+    contains an array of dictionaries with the group membership criteria and
+    the key 'computers' contains the same for the computers that are members
+    of the group.
+    '''
+    dict = {}
+    for key in _group_keys:
+        value = group.findtext(key[0])
+        dict.update({key[1]: value})
+    return dict
+    criteria = []
+    if dict['crit_count'] == 0:
+        criteria = [None]
+    else:
+        for criterion in group.findall('criteria/criterion'):
+            this_crit = {}
+            for c_key in _group_crit_keys:
+                this_crit.update({c_key: criterion.findtext(c_key)})
+            criteria.append(this_crit)
+    dict.update('criteria': crirteria)
+    computers = []
+    if dict['computers_count'] == 0:
+        computers = [None]
+    else:
+        for computer in group.findall('computers/computer'):
+            this_comp = {}
+            for c_key in _group_computer_keys:
+                this_comp.update({c_key: computer.findtext(c_key)})
+            computers.append(this_crit)
+    dict.update('computers': computers')
+
