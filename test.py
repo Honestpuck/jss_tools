@@ -137,3 +137,31 @@ old_name = one_pol.findtext('general/name')
 
 if old_name == pol['name']:
     print "policy: passed"
+
+if pol['script_count'] is not '0':
+    sc_name = pol['scripts'][0]['name']
+    sc_priority = pol['scripts'][0]['priority']
+    for scr in one_pol.findall('scripts/script'):
+        if scr.findtext('name') == sc_name:
+            old_priority = scr.findtext('priority')
+    if old_priority == sc_priority:
+        print "policy scripts: passed"
+
+if pol['pak_count'] is not '0':
+    pak_name = pol['paks'][0]['name']
+    pak_id = pol['paks'][0]['id']
+    for pak in one_pol.findall('package_configuration/packages/package'):
+        if pak.findtext('name') == pak_name:
+            old_id = pak.findtext('id')
+    if old_id == pak_id:
+        print "policy packages: passed"
+
+# test scripts
+scripts = jss.Script()
+one_script = jss.Script(scripts[2]['id'])
+script = tools.script(one_script)
+
+old_name = one_script.findtext('name')
+
+if old_name == script['name']:
+    print "script: passed"

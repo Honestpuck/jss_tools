@@ -1,0 +1,43 @@
+<restricted_software>
+  <size>2</size>
+  <restricted_software_title>
+    <id>1</id>
+    <name>Adobe Updater</name>
+  </restricted_software_title>
+  <restricted_software_title>
+    <id>2</id>
+    <name>Install macOS High Sierra</name>
+  </restricted_software_title>
+</restricted_software>
+
+one =
+<restricted_software>
+  <general>
+    <id>1</id>
+    <name>Adobe Updater</name>
+    <process_name>Adobe Acrobat Updater.app</process_name>
+    <match_exact_process_name>true</match_exact_process_name>
+    <send_notification>false</send_notification>
+    <kill_process>false</kill_process>
+    <delete_executable>false</delete_executable>
+    <display_message/>
+    <site>
+      <id>-1</id>
+      <name>None</name>
+    </site>
+  </general>
+  <scope>
+    <all_computers>false</all_computers>
+    <computers/>
+    <computer_groups/>
+    <buildings/>
+    <departments/>
+    <exclusions>
+      <computers/>
+      <computer_groups/>
+      <buildings/>
+      <departments/>
+      <users/>
+    </exclusions>
+  </scope>
+</restricted_software>
