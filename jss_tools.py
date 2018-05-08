@@ -75,7 +75,7 @@ _computer_keys = [
 
 
 # general information
-def info(computer, keys=_computer_keys):
+def c_info(computer, keys=_computer_keys):
     '''Returns a a dictionary of general information about the computer.
     It has a default list of information it returns but you can optionally
     pass it your own.
@@ -151,7 +151,7 @@ _ignore_apps = [
 ]
 
 
-def apps(computer, ignore=_ignore_apps):
+def c_apps(computer, ignore=_ignore_apps):
     '''Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore.
@@ -164,7 +164,7 @@ def apps(computer, ignore=_ignore_apps):
     return dict
 
 
-def attributes(computer):
+def c_attributes(computer):
     '''Returns a dictionary of the computers extension attributes. Each is
     added twice so you can get the value by the attribute name or id. Only
     gives you the value, not the type.
@@ -178,7 +178,7 @@ def attributes(computer):
     return dict
 
 
-def groups(computer):
+def c_groups(computer):
     ''' Returns an array of the computer groups computer belongs to.
     '''
     ar = []
@@ -198,7 +198,7 @@ _user_keys = [
 ]
 
 
-def users(computer):
+def c_users(computer):
     '''Returns an array containing a dictionary for each user on the computer.
     It ignores those whose name begins with '_'.
     '''
@@ -221,7 +221,7 @@ _cert_keys = [
 ]
 
 
-def certificates(computer):
+def c_certificates(computer):
     '''Returns an array containing a dictionary for each cetificate on
     the computer.
     '''
@@ -242,7 +242,7 @@ _prof_keys = [
 ]
 
 
-def profiles(computer, keys=_prof_keys):
+def c_profiles(computer, keys=_prof_keys):
     '''Returns an array containing a dictionary for each configuration
     profile on the computer.
     '''

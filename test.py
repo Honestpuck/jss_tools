@@ -25,17 +25,17 @@ c_keys = [
     ['general/serial_number', 'serial'],
 ]
 
-info_A = tools.info(one_computer)
-info_B = tools.info(one_computer, c_keys)
+info_A = tools.c_info(one_computer)
+info_B = tools.c_info(one_computer, c_keys)
 info_old = one_computer.find('general/serial_number').text
 
 if 'initial' in info_B:
-    print "info keys: failed"
+    print "c_info keys: failed"
 else:
-    print "info keys: passed"
+    print "c_info keys: passed"
 
 if info_A['serial'] == info_B['serial'] and info_B['serial'] == info_old:
-    print "info: passed"
+    print "c_info: passed"
 
 # test apps
 a_ignore = [
@@ -63,24 +63,24 @@ a_ignore = [
     'Grapher',
     'iBooks',
 ]
-apps_A = tools.apps(one_computer)
-apps_B = tools.apps(one_computer, a_ignore)
+apps_A = tools.c_apps(one_computer)
+apps_B = tools.c_apps(one_computer, a_ignore)
 for app in one_computer.findall('software/applications/application'):
     nm = app.findtext('name')
     if nm == 'Self Service.app':
         apps_old_version = app.findtext('version')
 
 if 'Chess' in apps_B:
-    print "apps ignore: failed"
+    print "c_apps ignore: failed"
 else:
-    print "apps ignore: passed"
+    print "c_apps ignore: passed"
 
 if (apps_A['Self Service'] == apps_B['Self Service']
         and apps_A['Self Service'] == apps_old_version):
-    print "apps: passed"
+    print "c_apps: passed"
 
 # test attributes
-attrib = tools.attributes(one_computer)
+attrib = tools.c_attributes(one_computer)
 attr_test_key = attrib.keys()[-3]  # third from the end should be a name.
 
 for attr in one_computer.findall('extension_attributes/extension_attribute'):
@@ -88,10 +88,10 @@ for attr in one_computer.findall('extension_attributes/extension_attribute'):
         attr_val = attr.findtext('value')
 
 if attrib[attr_test_key] == attr_val:
-    print "attributes: passed"
+    print "c_attributes: passed"
 
 # test users
-u = tools.users(one_computer)
+u = tools.c_users(one_computer)
 u_name = u[1]['name']
 u_uid = u[1]['uid']
 
@@ -100,10 +100,10 @@ for usr in one_computer.find('groups_accounts/local_accounts'):
         old_uid = usr.findtext('uid')
 
 if old_uid == u_uid:
-    print "users: passed"
+    print "c_users: passed"
 
 # test certificates
-c = tools.certificates(one_computer)[2]
+c = tools.c_certificates(one_computer)[2]
 common = c['common']
 c_epoch = c['epoch']
 
@@ -112,7 +112,7 @@ for cert in one_computer.findall('certificates/certificate'):
         old_epoch = cert.findtext('expires_epoch')
 
 if c_epoch == old_epoch:
-    print "certificates: passed"
+    print "c_certificates: passed"
 
 #
 # OTHER RECORD TYPES
