@@ -67,6 +67,7 @@ a_ignore = [
     'Grapher',
     'iBooks',
 ]
+
 apps_A = tools.c_apps(one_computer)
 apps_B = tools.c_apps(one_computer, a_ignore)
 for app in one_computer.findall('software/applications/application'):
@@ -149,7 +150,8 @@ else:
 
 # test policies
 policies = jss.Policy()
-one_pol = jss.Policy(policies[0]['id'])
+pol_len = len(policies)
+one_pol = jss.Policy(policies[randrange(pol_len)]['id'])
 pol = tools.policy(one_pol)
 
 old_name = one_pol.findtext('general/name')
@@ -159,27 +161,33 @@ if old_name == pol['name']:
 else:
     print "policy: failed"
 
-if pol['script_count'] is not '0':
-    sc_name = pol['scripts'][0]['name']
-    sc_priority = pol['scripts'][0]['priority']
-    for scr in one_pol.findall('scripts/script'):
-        if scr.findtext('name') == sc_name:
-            old_priority = scr.findtext('priority')
-    if old_priority == sc_priority:
-        print "policy scripts: passed"
-    else:
-        print "policy scripts: failed"
+while pol['script_count'] == '0':
+    one_pol = jss.Policy(policies[randrange(pol_len)]['id'])
+    pol = tools.policy(one_pol)
 
-if pol['pak_count'] is not '0':
-    pak_name = pol['paks'][0]['name']
-    pak_id = pol['paks'][0]['id']
-    for pak in one_pol.findall('package_configuration/packages/package'):
-        if pak.findtext('name') == pak_name:
-            old_id = pak.findtext('id')
-    if old_id == pak_id:
-        print "policy packages: passed"
-    else:
-        print "policy packages: failed"
+sc_name = pol['scripts'][0]['name']
+sc_priority = pol['scripts'][0]['priority']
+for scr in one_pol.findall('scripts/script'):
+    if scr.findtext('name') == sc_name:
+        old_priority = scr.findtext('priority')
+if old_priority == sc_priority:
+    print "policy scripts: passed"
+else:
+    print "policy scripts: failed"
+
+while pol['pak_count'] == '0':
+    one_pol = jss.Policy(policies[randrange(pol_len)]['id'])
+    pol = tools.policy(one_pol)
+
+pak_name = pol['paks'][0]['name']
+pak_id = pol['paks'][0]['id']
+for pak in one_pol.findall('package_configuration/packages/package'):
+    if pak.findtext('name') == pak_name:
+        old_id = pak.findtext('id')
+if old_id == pak_id:
+    print "policy packages: passed"
+else:
+    print "policy packages: failed"
 
 
 # test scripts
@@ -196,7 +204,8 @@ else:
 # test computergroups
 
 computergroups = jss.ComputerGroup()
-one_c_group = jss.ComputerGroup(computergroups[2]['id'])
+c_group_len = len(computergroups)
+one_c_group = jss.ComputerGroup(computergroups[randrange(c_group_len)]['id'])
 c_group = tools.computergroup(one_c_group)
 
 old_name = one_c_group.findtext('name')
@@ -206,13 +215,16 @@ if old_name == c_group['name']:
 else:
     print "computergroup: failed"
 
-if c_group['crit_count'] is not '0':
-    cg_name = c_group['criteria'][0]['name']
-    cg_value = c_group['criteria'][0]['value']
-    for cg in one_c_group.findall('criteria/criterion'):
-        if cg.findtext('name') == cg_name:
-            old_value = cg.findtext('value')
-    if old_value == cg_value:
-        print "computergroup criteria: passed"
-    else:
-        print "computergroup criteria: failed"
+while c_group['crit_count'] == '0':
+    one_c_group = jss.ComputerGroup(computergroups[randrange(c_group_len)]['id'])
+    c_group = tools.computergroup(one_c_group)
+
+cg_name = c_group['criteria'][0]['name']
+cg_value = c_group['criteria'][0]['value']
+for cg in one_c_group.findall('criteria/criterion'):
+    if cg.findtext('name') == cg_name:
+        old_value = cg.findtext('value')
+if old_value == cg_value:
+    print "computergroup criteria: passed"
+else:
+    print "computergroup criteria: failed"
