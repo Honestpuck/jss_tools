@@ -205,7 +205,8 @@ else:
 
 computergroups = jss.ComputerGroup()
 c_group_len = len(computergroups)
-one_c_group = jss.ComputerGroup(computergroups[randrange(c_group_len)]['id'])
+one_c_group = jss.ComputerGroup(
+    computergroups[randrange(c_group_len)]['id'])
 c_group = tools.computergroup(one_c_group)
 
 old_name = one_c_group.findtext('name')
@@ -216,7 +217,8 @@ else:
     print "computergroup: failed"
 
 while c_group['crit_count'] == '0':
-    one_c_group = jss.ComputerGroup(computergroups[randrange(c_group_len)]['id'])
+    one_c_group = jss.ComputerGroup(
+        computergroups[randrange(c_group_len)]['id'])
     c_group = tools.computergroup(one_c_group)
 
 cg_name = c_group['criteria'][0]['name']

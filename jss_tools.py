@@ -8,8 +8,8 @@
 #
 # 3 May 2018
 # v1.0
-'''This is a collection of small tool routines to make working with the data
-returned by python-jss easier.
+'''This is a collection of small tool routines to make working with
+the data returned by python-jss easier.
 
 At their core they turn the XML from the JSS into python data structures.
 '''
@@ -20,7 +20,8 @@ import getpass
 
 
 def Jopen():
-    ''' Open a connection to the JSS. Asks for your password, returns connector
+    '''Open a connection to the JSS. Asks for your password,
+    returns connector
     '''
     jss_prefs = jss.JSSPrefs()
     jss_prefs.password = getpass.getpass()
@@ -29,8 +30,6 @@ def Jopen():
 
 # Routines for the computer record
 
-# list of general XML keys and a short form. Short form becomes dictionary key.
-# this sort of thing is used a lot in here.
 _computer_keys = [
     # general
     ['general/id', 'id'],          # JAMF ID
@@ -76,11 +75,13 @@ _computer_keys = [
 
 
 # general information
-def c_info(computer, keys=_computer_keys):
+def c_info(computer, keys=None):
     '''Returns a a dictionary of general information about the computer.
     It has a default list of information it returns but you can optionally
     pass it your own.
     '''
+    if not keys:
+        keys = _computer_keys
     dict = {}
     for key in keys:
         dict.update({key[1]: computer.findtext(key[0])})
@@ -152,11 +153,13 @@ _ignore_apps = [
 ]
 
 
-def c_apps(computer, ignore=_ignore_apps):
+def c_apps(computer, ignore=None):
     '''Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore.
     '''
+    if not ignore:
+        ignore = _ignore_apps
     dict = {}
     for app in computer.findall('software/applications/application'):
         nm = app.findtext('name').split('.')[0]
@@ -200,8 +203,8 @@ _user_keys = [
 
 
 def c_users(computer):
-    '''Returns an array containing a dictionary for each user on the computer.
-    It ignores those whose name begins with '_'.
+    '''Returns an array containing a dictionary for each user on the
+    computer. It ignores those whose name begins with '_'.
     '''
     ar = []
     for u in computer.find('groups_accounts/local_accounts'):
@@ -243,10 +246,12 @@ _prof_keys = [
 ]
 
 
-def c_profiles(computer, keys=_prof_keys):
+def c_profiles(computer, keys=None):
     '''Returns an array containing a dictionary for each configuration
     profile on the computer.
     '''
+    if not keys:
+        keys = _prof_keys
     ar = []
     for profile in computer.findall(
             'configuration_profiles/configuration_profile'):
@@ -282,9 +287,11 @@ _pak_keys = [
 ]
 
 
-def package(package, keys=_pak_keys):
+def package(package, keys=None):
     '''Returns a dictionary of info about a package.
     '''
+    if not keys:
+        keys = _pak_keys
     dict = {}
     for key in keys:
         dict.update({key[1]: package.findtext(key[0])})
@@ -337,11 +344,13 @@ _pol_script_keys = [
 ]
 
 
-def policy(policy, keys=_pol_keys):
+def policy(policy, keys=None):
     '''Returns a dictionary of info about a policy. The key `'paks'` is an
     array of dictionaries with info on the packages included in the policy
     and the key `'scripts'` does the same for scripts.
     '''
+    if not keys:
+        keys = _pol_keys
     dict = {}
     for key in keys:
         value = policy.findtext(key[0])
@@ -387,9 +396,11 @@ _script_keys = [
 ]
 
 
-def script(script, keys=_script_keys):
+def script(script, keys=None):
     '''Returns a dictionary of info about a script.
     '''
+    if not keys:
+        keys = _script_keys
     dict = {}
     for key in keys:
         value = script.findtext(key[0])
