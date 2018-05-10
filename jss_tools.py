@@ -8,7 +8,7 @@
 #
 # 10 May 2018
 #
-'''A collection of routines to convert JSS XML into python variables
+"""A collection of routines to convert JSS XML into python variables
 
 This is a collection of small tool routines to make working with
 the data returned by python-jss easier.
@@ -16,7 +16,10 @@ the data returned by python-jss easier.
 At their core they turn the XML from the JSS into python dictionaries or
 arrays of dictionaries with the XML stringas converted into python types
 where possible.
-'''
+
+Each of the functions has a matching array of keys that are used. These can
+can be discovered as _<function name>_keys.
+"""
 
 __author__ = "Tony Williams honestpuck@gmail.com"
 __version__ = 0.3
@@ -30,34 +33,50 @@ import getpass
 from dateutil import parser
 from datetime import datetime
 
-BOOL = 0
-DATE = 1  # plain date
-DUTC = 2  # UTC date time and time zone 2018-01-09T19:44:55.000+1000
-EPOK = 3  # Unix epoch
-INTN = 4
-TIME = 5  # date and time
 
-
+# some low level useful routines
 def convert(val, typ):
-    '''Takes a string value from JSS and converts it to data of type typ.
-    `typ` is an int and represented by the constants BOOL, DATE, DUTC,
-    EPOK, INTN, and TIME. This function doesn't *really* need to be exposed
-    but you might find it handy.
-    '''
+    """Takes a string value from JSS converts it type 'typ''.
+    `typ` is one of:
+    'BOOL', Boolean
+    'DATE', Date
+    'DUTC', Date with UTC timezone information
+    'EPOK', Unix epoch
+    'INTN', Integer
+    'TIME'. Date and time
+
+    The date routines and TIME return a datetime object.
+
+    NOTE: The conversions DATE, DUTC and TIME use the parser routine from
+    dateutils so they can accept a wide variety of formats, not just the one
+    used in the JSS so you may find it easier to run convert on such as
+    '10 Dec 2108' rather than build your own datetime object for comparison
+    purposes. That's why I expose it to you.
+    """
     return {
-        BOOL: lambda x: x == 'true',
-        INTN: lambda x: int(x),
-        DATE: lambda x: parser.parse(x),
-        DUTC: lambda x: parser.parse(x),
-        EPOK: lambda x: datetime.fromtimestamp(int(x)/1000),
-        TIME: lambda x: parser.parse(x),
+        'BOOL': lambda x: x == 'true',
+        'INTN': lambda x: int(x),
+        'DATE': lambda x: parser.parse(x),
+        'DUTC': lambda x: parser.parse(x),
+        'EPOK': lambda x: datetime.fromtimestamp(int(x)/1000),
+        'TIME': lambda x: parser.parse(x),
     }[typ](val)
 
 
-def Jopen():
-    '''Open a connection to the JSS. Asks for your password,
-    returns connector
+def now():
+    '''right now in datetime format.
+
+    The sole purpose of this function is to remove the need to import
+    'datetime' in your code and remember that it is `datetime.datetime.now()`
+    just so we can get right now for comparison purposes.
     '''
+    return datetime.now()
+
+
+def Jopen():
+    """Open a connection to the JSS. Asks for your password,
+    returns connector
+    """
     jss_prefs = jss.JSSPrefs()
     jss_prefs.password = getpass.getpass()
     return jss.JSS(jss_prefs)
@@ -109,21 +128,21 @@ _c_info_keys = [
 ]
 
 _c_info_convert_keys = [
-    ['initial', DATE],
-    ['last', TIME],
-    ['managed', BOOL],
-    ['master', BOOL],
-    ['mdm', BOOL],
-    ['profiles_count', INTN]
+    ['initial', 'DATE'],
+    ['last', 'TIME'],
+    ['managed', 'BOOL'],
+    ['master', 'BOOL'],
+    ['mdm', 'BOOL'],
+    ['profiles_count', 'INTN']
 ]
 
 
 # general information
 def c_info(computer, keys=None):
-    '''Returns a a dictionary of general information about the computer.
+    """Returns a a dictionary of general information about the computer.
     It has a default list of information it returns but you can optionally
     pass it your own.
-    '''
+    """
     if not keys:
         keys = _c_info_keys
     dict = {}
@@ -201,10 +220,10 @@ _c_ignore_apps = [
 
 
 def c_apps(computer, ignore=None):
-    '''Returns a dictionary of the apps installed. Key is name and value is
+    """Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore.
-    '''
+    """
     if not ignore:
         ignore = _c_ignore_apps
     dict = {}
@@ -216,10 +235,10 @@ def c_apps(computer, ignore=None):
 
 
 def c_attributes(computer):
-    '''Returns a dictionary of the computers extension attributes. Each is
+    """Returns a dictionary of the computers extension attributes. Each is
     added twice so you can get the value by the attribute name or id. Only
     gives you the value, not the type.
-    '''
+    """
     dict = {}
     for attr in computer.findall('extension_attributes/extension_attribute'):
         id = attr.findtext('id')
@@ -230,8 +249,8 @@ def c_attributes(computer):
 
 
 def c_groups(computer):
-    ''' Returns an array of the computer groups computer belongs to.
-    '''
+    """ Returns an array of the computer groups computer belongs to.
+    """
     ar = []
     for group in computer.find('groups_accounts/computer_group_memberships'):
         ar.append(group.text)
@@ -249,15 +268,15 @@ _c_user_keys = [
 ]
 
 _c_user_convert_keys = [
-    ['administrator', BOOL],
-    ['file_vault_enabled', BOOL],
+    ['administrator', 'BOOL'],
+    ['file_vault_enabled', 'BOOL'],
 ]
 
 
 def c_users(computer):
-    '''Returns an array containing a dictionary for each user on the
+    """Returns an array containing a dictionary for each user on the
     computer. It ignores those whose name begins with '_'.
-    '''
+    """
     ar = []
     for u in computer.find('groups_accounts/local_accounts'):
         if u.findtext('name')[0] is not '_':
@@ -280,15 +299,19 @@ _c_certificates_keys = [
 
 
 def c_certificates(computer):
-    '''Returns an array containing a dictionary for each cetificate on
+    """Returns an array containing a dictionary for each cetificate on
     the computer.
-    '''
+    """
     ar = []
     for cert in computer.findall('certificates/certificate'):
         dict = {}
         for key in _c_certificates_keys:
             dict.update({key[1]: cert.findtext(key[0])})
-            ar.append(dict)
+        if dict['utc']:
+            dict['utc'] = convert(dict['utc'], 'DUTC')
+        if dict['epoch']:
+            dict['epoch'] = convert(dict['epoch'], 'EPOK')
+        ar.append(dict)
     return ar
 
 
@@ -300,14 +323,14 @@ _c_profiles_keys = [
 ]
 
 _c_profiles_convert_keys = [
-    ['is_removable', BOOL],
+    ['is_removable', 'BOOL'],
 ]
 
 
 def c_profiles(computer, keys=None):
-    '''Returns an array containing a dictionary for each configuration
+    """Returns an array containing a dictionary for each configuration
     profile on the computer.
-    '''
+    """
     if not keys:
         keys = _c_profiles_keys
     ar = []
@@ -348,19 +371,19 @@ _c_packages_keys = [
 ]
 
 _c_packages_convert_keys = [
-    ['reboot', BOOL],
-    ['fill_user', BOOL],
-    ['fill', BOOL],
-    ['boot_req', BOOL],
-    ['allow_uninst', BOOL],
-    ['install_if_avail', BOOL],
-    ['send_not', BOOL],
+    ['reboot', 'BOOL'],
+    ['fill_user', 'BOOL'],
+    ['fill', 'BOOL'],
+    ['boot_req', 'BOOL'],
+    ['allow_uninst', 'BOOL'],
+    ['install_if_avail', 'BOOL'],
+    ['send_not', 'BOOL'],
 ]
 
 
 def package(package, keys=None):
-    '''Returns a dictionary of info about a package.
-    '''
+    """Returns a dictionary of info about a package.
+    """
     if not keys:
         keys = _c_packages_keys
     dict = {}
@@ -419,26 +442,26 @@ _pol_script_keys = [
 ]
 
 _pol_convert_keys = [
-    ['checkin', BOOL],
-    ['enabled', BOOL],
-    ['enrollment', BOOL],
-    ['login', BOOL],
-    ['logout', BOOL],
-    ['self_service', BOOL],
-    ['startup', BOOL],
+    ['checkin', 'BOOL'],
+    ['enabled', 'BOOL'],
+    ['enrollment', 'BOOL'],
+    ['login', 'BOOL'],
+    ['logout', 'BOOL'],
+    ['self_service', 'BOOL'],
+    ['startup', 'BOOL'],
 ]
 
 _pol_pak_convert_keys = [
-    ['fut', BOOL],
-    ['feu', BOOL],
+    ['fut', 'BOOL'],
+    ['feu', 'BOOL'],
 ]
 
 
 def policy(policy, keys=None):
-    '''Returns a dictionary of info about a policy. The key `'paks'` is an
+    """Returns a dictionary of info about a policy. The key `'paks'` is an
     array of dictionaries with info on the packages included in the policy
     and the key `'scripts'` does the same for scripts.
-    '''
+    """
     if not keys:
         keys = _pol_keys
     dict = {}
@@ -492,8 +515,8 @@ _script_keys = [
 
 
 def script(script, keys=None):
-    '''Returns a dictionary of info about a script.
-    '''
+    """Returns a dictionary of info about a script.
+    """
     if not keys:
         keys = _script_keys
     dict = {}
@@ -531,16 +554,16 @@ _group_computer_keys = [
 
 
 def computergroup(group):
-    '''Returns a dictionary of info about a computergroup. The key 'criteria'
+    """Returns a dictionary of info about a computergroup. The key 'criteria'
     contains an array of dictionaries with the group membership criteria and
     the key 'computers' contains the same for the computers that are members
     of the group.
-    '''
+    """
     dict = {}
     for key in _group_keys:
         value = group.findtext(key[0])
         dict.update({key[1]: value})
-    dict['smart'] = convert(dict['smart'], BOOL)
+    dict['smart'] = convert(dict['smart'], 'BOOL')
     criteria = []
     if dict['crit_count'] == 0:
         criteria = [None]
@@ -563,7 +586,3 @@ def computergroup(group):
             computers.append(this_crit)
     dict.update({'computers': computers})
     return dict
-
-__notes__ = '''
-This is some end notes
-'''
