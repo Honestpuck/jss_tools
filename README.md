@@ -2,9 +2,10 @@
 
 This is a collection of small tool routines to make working with the data returned by python-jss easier.
 
-At their core they turn the XML from the JSS into python data structures.
+At their core they turn the XML from the JSS into python data structures. It also converts the strings retuened to valid python types where possible.
 
-**This is currently under heavy development and shouldn't be used for anything but testing of itself. At the moment the `master` branch is working and passing
+*This is currently under continual developent. At the moment the `master` branch is working and passing all tests but does not do the data conversion. The branch 'conversion' does the data converson but is not yet fully tested.
+
 `Jopen()` opens a connection to the JSS. It uses the URL and user name in the
 defaults preferences but asks for your password so you don't need to have the password in a script or in the preferences. It returns the JSS instance. It basically requires python-jss to be working.
 
@@ -43,13 +44,7 @@ At the moment there are some data structures that are arrays of dictionaries. I'
 
 A tiny file with an example of the old style and new style. For more examples look in `test.py`.
 
-#### tools_convert.py
+#### test.py
 
-I've started working on some routines to take the string data and convert _that_ to python types. This is extremely limited at the moment, it's basically a proof of concept for later work.
-
-
-
-
-
-
+My code to test the script.
 

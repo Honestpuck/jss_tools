@@ -6,19 +6,27 @@
 #
 # Tony Williams (ARW)
 #
-# 3 May 2018
-# v1.0
-'''This is a collection of small tool routines to make working with
+# 10 May 2018
+#
+'''A collection of routines to convert JSS XML into python variables
+
+This is a collection of small tool routines to make working with
 the data returned by python-jss easier.
 
-At their core they turn the XML from the JSS into python data structures.
+At their core they turn the XML from the JSS into python dictionaries or
+arrays of dictionaries with the XML stringas converted into python types
+where possible.
 '''
+
+__author__ = "Tony Williams honestpuck@gmail.com"
+__version__ = 0.3
+__date__ = '10 May 2018'
 
 # required for jss
 import jss
 import getpass
 
-# for string to datqa conversion
+# for string to data conversion
 from dateutil import parser
 from datetime import datetime
 
@@ -45,6 +53,7 @@ def convert(val, typ):
         TIME: lambda x: parser.parse(x),
     }[typ](val)
 
+
 def Jopen():
     '''Open a connection to the JSS. Asks for your password,
     returns connector
@@ -58,7 +67,7 @@ def Jopen():
 
 _c_info_keys = [
     # general
-    ['general/id', 'id'],          # JAMF ID
+    ['general/id', 'id'],
     ['general/name', 'name'],
     ['general/mac_address', 'mac'],
     ['general/alt_mac_address', 'mac2'],
@@ -100,7 +109,6 @@ _c_info_keys = [
 ]
 
 _c_info_convert_keys = [
-    ['id', BOOL],
     ['initial', DATE],
     ['last', TIME],
     ['managed', BOOL],
@@ -122,7 +130,8 @@ def c_info(computer, keys=None):
     for key in keys:
         dict.update({key[1]: computer.findtext(key[0])})
     for cc in _c_info_convert_keys:
-        dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        if cc[0] in dict:
+            dict[cc[0]] = convert(dict[cc[0]], cc[1])
     return dict
 
 
@@ -244,6 +253,7 @@ _c_user_convert_keys = [
     ['file_vault_enabled', BOOL],
 ]
 
+
 def c_users(computer):
     '''Returns an array containing a dictionary for each user on the
     computer. It ignores those whose name begins with '_'.
@@ -293,6 +303,7 @@ _c_profiles_convert_keys = [
     ['is_removable', BOOL],
 ]
 
+
 def c_profiles(computer, keys=None):
     '''Returns an array containing a dictionary for each configuration
     profile on the computer.
@@ -306,7 +317,8 @@ def c_profiles(computer, keys=None):
         for key in _prof_keys:
             dict.update({key: profile.findtext(key)})
         for cc in _c_profiles_convert_keys:
-            dict[cc[0]] = convert(dict[cc[0]], cc[1])
+            if cc[0] in dict:
+                dict[cc[0]] = convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
 
@@ -355,7 +367,8 @@ def package(package, keys=None):
     for key in keys:
         dict.update({key[1]: package.findtext(key[0])})
     for cc in _c_packages_convert_keys:
-        dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        if cc[0] in dict:
+            dict[cc[0]] = convert(dict[cc[0]], cc[1])
 
     return dict
 
@@ -433,7 +446,8 @@ def policy(policy, keys=None):
         value = policy.findtext(key[0])
         dict.update({key[1]: value})
     for cc in _pol_convert_keys:
-        dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        if cc[0] in dict:
+            dict[cc[0]] = convert(dict[cc[0]], cc[1])
     # build list of packages in policy
     paks = []
     if dict['pak_count'] == '0':
@@ -445,7 +459,7 @@ def policy(policy, keys=None):
                 value = pak.findtext(pak_key)
                 this_pak.update({pak_key: value})
             for cc in _pol_pak_convert_keys:
-                dict[cc[0]] = convert(dict[cc[0]], cc[1])
+                this_pak[cc[0]] = convert(this_pak[cc[0]], cc[1])
             paks.append(this_pak)
     dict.update({'paks': paks})
     # build list of scripts in policy
@@ -526,7 +540,7 @@ def computergroup(group):
     for key in _group_keys:
         value = group.findtext(key[0])
         dict.update({key[1]: value})
-    dict['is_smart'] = convert(dict['is_smart'], BOOL)
+    dict['smart'] = convert(dict['smart'], BOOL)
     criteria = []
     if dict['crit_count'] == 0:
         criteria = [None]
@@ -549,3 +563,7 @@ def computergroup(group):
             computers.append(this_crit)
     dict.update({'computers': computers})
     return dict
+
+__notes__ = '''
+This is some end notes
+'''
