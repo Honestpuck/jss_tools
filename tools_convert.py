@@ -7,20 +7,25 @@
 # *very* early version, mnore a proof of concept than anything real.
 #
 
-from datetime import datetime.strptime
+from dateutil import parser
+from datetime import datetime
 
 BOOL = 0
-DATE = 1
-INTN = 2
-TIME = 3
+DATE = 1  # plain date
+DUTC = 2  # UTC date time and time zone 2018-01-09T19:44:55.000+1000
+EPOK = 3  # Unix epoch
+INTN = 4
+TIME = 5  # date and time
 
 
 def convert(val, typ):
     return {
         BOOL: lambda x: x == 'true',
         INTN: lambda x: int(x),
-        DATE: lambda x: strptime(x, '%Y-%m-%d'),
-        TIME: lambda x: strptime(x, '%Y-%m-%d %H:%M:%S'),
+        DATE: lambda x: parser.parse(x),
+        DUTC: lambda x: parser.parse(x),
+        EPOK: lambda x: datetime.fromtimestamp(int(x)/1000)
+        TIME: lambda x: parser.parse(x),
     }[typ](val)
 
 

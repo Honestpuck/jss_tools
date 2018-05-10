@@ -18,6 +18,32 @@ At their core they turn the XML from the JSS into python data structures.
 import jss
 import getpass
 
+# for string to datqa conversion
+from dateutil import parser
+from datetime import datetime
+
+BOOL = 0
+DATE = 1  # plain date
+DUTC = 2  # UTC date time and time zone 2018-01-09T19:44:55.000+1000
+EPOK = 3  # Unix epoch
+INTN = 4
+TIME = 5  # date and time
+
+
+def convert(val, typ):
+    '''Takes a string value from JSS and converts it to data of type typ.
+    `typ` is an int and represented by the constants BOOL, DATE, DUTC,
+    EPOK, INTN, and TIME. This function doesn't *really* need to be exposed
+    but you might find it handy.
+    '''
+    return {
+        BOOL: lambda x: x == 'true',
+        INTN: lambda x: int(x),
+        DATE: lambda x: parser.parse(x),
+        DUTC: lambda x: parser.parse(x),
+        EPOK: lambda x: datetime.fromtimestamp(int(x)/1000),
+        TIME: lambda x: parser.parse(x),
+    }[typ](val)
 
 def Jopen():
     '''Open a connection to the JSS. Asks for your password,
@@ -30,7 +56,7 @@ def Jopen():
 
 # Routines for the computer record
 
-_computer_keys = [
+_c_info_keys = [
     # general
     ['general/id', 'id'],          # JAMF ID
     ['general/name', 'name'],
@@ -73,6 +99,16 @@ _computer_keys = [
     ['configuration_profiles/size', 'profiles_count']
 ]
 
+_c_info_convert_keys = [
+    ['id', BOOL],
+    ['initial', DATE],
+    ['last', TIME],
+    ['managed', BOOL],
+    ['master', BOOL],
+    ['mdm', BOOL],
+    ['profiles_count', INTN]
+]
+
 
 # general information
 def c_info(computer, keys=None):
@@ -81,15 +117,17 @@ def c_info(computer, keys=None):
     pass it your own.
     '''
     if not keys:
-        keys = _computer_keys
+        keys = _c_info_keys
     dict = {}
     for key in keys:
         dict.update({key[1]: computer.findtext(key[0])})
+    for cc in _c_info_convert_keys:
+        dict[cc[0]] = convert(dict[cc[0]], cc[1])
     return dict
 
 
 # apps to ignore in app list (Apple apps)
-_ignore_apps = [
+_c_ignore_apps = [
     # Standard Apple apps
     'Activity Monitor',
     'AirPort Utility',
@@ -159,7 +197,7 @@ def c_apps(computer, ignore=None):
     paramater 'ignore', which is an array of app names to ignore.
     '''
     if not ignore:
-        ignore = _ignore_apps
+        ignore = _c_ignore_apps
     dict = {}
     for app in computer.findall('software/applications/application'):
         nm = app.findtext('name').split('.')[0]
@@ -191,7 +229,7 @@ def c_groups(computer):
     return ar
 
 
-_user_keys = [
+_c_user_keys = [
     'name',
     'realname',
     'uid',
@@ -201,6 +239,10 @@ _user_keys = [
     'file_vault_enabled',
 ]
 
+_c_user_convert_keys = [
+    ['administrator', BOOL],
+    ['file_vault_enabled', BOOL],
+]
 
 def c_users(computer):
     '''Returns an array containing a dictionary for each user on the
@@ -210,13 +252,15 @@ def c_users(computer):
     for u in computer.find('groups_accounts/local_accounts'):
         if u.findtext('name')[0] is not '_':
             dict = {}
-            for key in _user_keys:
+            for key in _c_user_keys:
                 dict.update({key: u.findtext(key)})
+            for cc in _c_user_convert_keys:
+                dict[cc[0]] = convert(dict[cc[0]], cc[1])
             ar.append(dict)
     return ar
 
 
-_cert_keys = [
+_c_certificates_keys = [
     ['common_name', 'common'],
     ['identity', 'identity'],
     ['expires_utc', 'utc'],
@@ -232,39 +276,44 @@ def c_certificates(computer):
     ar = []
     for cert in computer.findall('certificates/certificate'):
         dict = {}
-        for key in _cert_keys:
+        for key in _c_certificates_keys:
             dict.update({key[1]: cert.findtext(key[0])})
             ar.append(dict)
     return ar
 
 
-_prof_keys = [
+_c_profiles_keys = [
     'id',
     'name',
     'uuid',
     'is_removable'
 ]
 
+_c_profiles_convert_keys = [
+    ['is_removable', BOOL],
+]
 
 def c_profiles(computer, keys=None):
     '''Returns an array containing a dictionary for each configuration
     profile on the computer.
     '''
     if not keys:
-        keys = _prof_keys
+        keys = _c_profiles_keys
     ar = []
     for profile in computer.findall(
             'configuration_profiles/configuration_profile'):
         dict = {}
         for key in _prof_keys:
             dict.update({key: profile.findtext(key)})
+        for cc in _c_profiles_convert_keys:
+            dict[cc[0]] = convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
 
 
 # Other record types
 
-_pak_keys = [
+_c_packages_keys = [
     ['id', 'id'],
     ['name', 'name'],
     ['category', 'category'],
@@ -286,15 +335,28 @@ _pak_keys = [
     ['send_notification', 'send_not'],
 ]
 
+_c_packages_convert_keys = [
+    ['reboot', BOOL],
+    ['fill_user', BOOL],
+    ['fill', BOOL],
+    ['boot_req', BOOL],
+    ['allow_uninst', BOOL],
+    ['install_if_avail', BOOL],
+    ['send_not', BOOL],
+]
+
 
 def package(package, keys=None):
     '''Returns a dictionary of info about a package.
     '''
     if not keys:
-        keys = _pak_keys
+        keys = _c_packages_keys
     dict = {}
     for key in keys:
         dict.update({key[1]: package.findtext(key[0])})
+    for cc in _c_packages_convert_keys:
+        dict[cc[0]] = convert(dict[cc[0]], cc[1])
+
     return dict
 
 
@@ -343,6 +405,21 @@ _pol_script_keys = [
     'parameter11',
 ]
 
+_pol_convert_keys = [
+    ['checkin', BOOL],
+    ['enabled', BOOL],
+    ['enrollment', BOOL],
+    ['login', BOOL],
+    ['logout', BOOL],
+    ['self_service', BOOL],
+    ['startup', BOOL],
+]
+
+_pol_pak_convert_keys = [
+    ['fut', BOOL],
+    ['feu', BOOL],
+]
+
 
 def policy(policy, keys=None):
     '''Returns a dictionary of info about a policy. The key `'paks'` is an
@@ -355,6 +432,8 @@ def policy(policy, keys=None):
     for key in keys:
         value = policy.findtext(key[0])
         dict.update({key[1]: value})
+    for cc in _pol_convert_keys:
+        dict[cc[0]] = convert(dict[cc[0]], cc[1])
     # build list of packages in policy
     paks = []
     if dict['pak_count'] == '0':
@@ -365,6 +444,8 @@ def policy(policy, keys=None):
             for pak_key in _pol_pak_keys:
                 value = pak.findtext(pak_key)
                 this_pak.update({pak_key: value})
+            for cc in _pol_pak_convert_keys:
+                dict[cc[0]] = convert(dict[cc[0]], cc[1])
             paks.append(this_pak)
     dict.update({'paks': paks})
     # build list of scripts in policy
@@ -445,7 +526,7 @@ def computergroup(group):
     for key in _group_keys:
         value = group.findtext(key[0])
         dict.update({key[1]: value})
-
+    dict['is_smart'] = convert(dict['is_smart'], BOOL)
     criteria = []
     if dict['crit_count'] == 0:
         criteria = [None]
