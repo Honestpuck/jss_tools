@@ -2,7 +2,7 @@
 
 This is a collection of small tool routines to make working with the data returned by python-jss easier.
 
-At their core they turn the XML from the JSS into python data structures. It also converts the strings retuened to valid python types where possible.
+At their core they turn the XML from the JSS into python data structures. It also converts the strings returned to valid python types where possible.
 
 *This is currently under continual developent. At the moment it is working
 and passing all tests.
