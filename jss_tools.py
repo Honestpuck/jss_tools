@@ -19,11 +19,16 @@ where possible.
 
 Each of the functions has a matching array of keys that are used. These can
 can be discovered as _<function name>_keys.
+
+Latest version can be found at https://github.com/Honestpuck/jss_tools
+
+You will neeed python-jss working. Details at
+https://github.com/sheagcraig/python-jss
 """
 
-__author__ = "Tony Williams honestpuck@gmail.com"
-__version__ = 0.3
-__date__ = '10 May 2018'
+__author__ = "Tony Williams"
+__version__ = 0.4
+__date__ = '11 May 2018'
 
 # required for jss
 import jss
@@ -222,7 +227,9 @@ _c_ignore_apps = [
 def c_apps(computer, ignore=None):
     """Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
-    paramater 'ignore', which is an array of app names to ignore.
+    paramater 'ignore', which is an array of app names to ignore. It also
+    removeds the `.app` at the end of the file name since  by definition
+    an app has it but people don't usually see it :)
     """
     if not ignore:
         ignore = _c_ignore_apps
