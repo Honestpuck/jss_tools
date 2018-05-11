@@ -31,6 +31,11 @@ Feedback to honestpuck@gmail.com
 
 A tiny file with an example of the old style and new style. For more examples look in `test.py`.
 
+### compliance.py
+
+Real world example. Somebody wanted a list of Macs not running the right OS
+and build so I gave them the output oif this.
+
 #### test.py
 
 My code to test the script.
