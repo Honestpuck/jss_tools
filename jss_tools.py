@@ -92,7 +92,7 @@ def Jopen():
 _c_info_keys = [
     # general
     ['general/id', 'id'],
-    ['general/name', 'name'],
+    ['general/name', 'machine_name'],
     ['general/mac_address', 'mac'],
     ['general/alt_mac_address', 'mac2'],
     ['general/ip_address', 'ip'],
