@@ -25,7 +25,7 @@ the biggest cost in time by far for using JSS data is the API request even
 on large record types like a computer record I'm considering removing this.
 Use cases for leaving it would be appreciated.
 
-If there is a python-jss call not covered that you would like then please reach out. My JSS is not well populated for some things so I have no need for some and no data to test but I can get around that if you can supply the XML returned by your JSS (sanitisied, of course).
+If there is a python-jss call not covered that you would like then please reach out. My JSS is not well populated for some things so I have no need for some and no data to test but I can get around that if you can supply the XML returned by your JSS (sanitised, of course).
 
 Feedback to honestpuck@gmail.com
 
