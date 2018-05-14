@@ -17,7 +17,7 @@ At their core they turn the XML from the JSS into python dictionaries or
 arrays of dictionaries with the XML stringas converted into python types
 where possible.
 
-Each of the functions has a matching array of keys that are used. These can
+Most of the functions have a matching array of keys that are used. These can
 can be discovered as _<function name>_keys.
 
 Latest version can be found at https://github.com/Honestpuck/jss_tools
@@ -34,7 +34,7 @@ __date__ = '11 May 2018'
 import jss
 import getpass
 
-# for string to data conversion
+# for string to date conversion
 from dateutil import parser
 from datetime import datetime
 
@@ -73,7 +73,7 @@ def now():
 
     The sole purpose of this function is to remove the need to import
     'datetime' in your code and remember that it is `datetime.datetime.now()`
-    just so we can get right now for comparison purposes.
+    just so we can get right now for comparison purposes. Yes, OK, I'm lazy.
     '''
     return datetime.now()
 
@@ -256,7 +256,7 @@ def c_attributes(computer):
 
 
 def c_groups(computer):
-    """ Returns an array of the computer groups computer belongs to.
+    """ Returns an array of the computer groups the computer belongs to.
     """
     ar = []
     for group in computer.find('groups_accounts/computer_group_memberships'):
@@ -473,8 +473,7 @@ def policy(policy, keys=None):
         keys = _pol_keys
     dict = {}
     for key in keys:
-        value = policy.findtext(key[0])
-        dict.update({key[1]: value})
+        dict.update({key[1]: policy.findtext(key[0])})
     for cc in _pol_convert_keys:
         if cc[0] in dict:
             dict[cc[0]] = convert(dict[cc[0]], cc[1])
@@ -486,8 +485,7 @@ def policy(policy, keys=None):
         for pak in policy.findall('package_configuration/packages/package'):
             this_pak = {}
             for pak_key in _pol_pak_keys:
-                value = pak.findtext(pak_key)
-                this_pak.update({pak_key: value})
+                this_pak.update({pak_key: pak.findtext(pak_key)})
             for cc in _pol_pak_convert_keys:
                 this_pak[cc[0]] = convert(this_pak[cc[0]], cc[1])
             paks.append(this_pak)
@@ -528,8 +526,7 @@ def script(script, keys=None):
         keys = _script_keys
     dict = {}
     for key in keys:
-        value = script.findtext(key[0])
-        dict.update({key[1]: value})
+        dict.update({key[1]: script.findtext(key[0])})
     return dict
 
 
@@ -568,8 +565,7 @@ def computergroup(group):
     """
     dict = {}
     for key in _group_keys:
-        value = group.findtext(key[0])
-        dict.update({key[1]: value})
+        dict.update({key[1]: group.findtext(key[0])})
     dict['smart'] = convert(dict['smart'], 'BOOL')
     criteria = []
     if dict['crit_count'] == 0:
@@ -581,7 +577,6 @@ def computergroup(group):
                 this_crit.update({c_key: criterion.findtext(c_key)})
             criteria.append(this_crit)
     dict.update({'criteria': criteria})
-
     computers = []
     if dict['computers_count'] == 0:
         computers = [None]
@@ -593,3 +588,27 @@ def computergroup(group):
             computers.append(this_crit)
     dict.update({'computers': computers})
     return dict
+
+
+_category_keys = [
+    'id',
+    'name',
+    'priority',
+]
+
+
+def category(category):
+    """Returns a dictionary of info about a category.
+    """
+    dict = {}
+    for key in _category_keys:
+        dict.update({key[1]: group.findtext(key[0])})
+    dict['priority'] = convert(dict['priority'], 'INTN')
+    return dict
+
+
+
+
+
+
+
