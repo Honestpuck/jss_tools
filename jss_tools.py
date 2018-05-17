@@ -27,8 +27,8 @@ https://github.com/sheagcraig/python-jss
 """
 
 __author__ = "Tony Williams"
-__version__ = 0.4
-__date__ = '11 May 2018'
+__version__ = 0.6
+__date__ = '16 May 2018'
 
 # required for jss
 import jss
@@ -37,7 +37,6 @@ import getpass
 # for string to date conversion
 from dateutil import parser
 from datetime import datetime
-
 
 # some low level useful routines
 def convert(val, typ):
@@ -55,8 +54,8 @@ def convert(val, typ):
     NOTE: The conversions DATE, DUTC and TIME use the parser routine from
     dateutils so they can accept a wide variety of formats, not just the one
     used in the JSS so you may find it easier to run convert on such as
-    '10 Dec 2108' rather than build your own datetime object for comparison
-    purposes. That's why I expose it to you.
+    '10 Dec 2017' rather than build your own datetime object for comparison
+    purposes. That's one reason for exposing it.
     """
     return {
         'BOOL': lambda x: x == 'true',
@@ -143,24 +142,19 @@ _c_info_convert_keys = [
 
 
 # general information
-def c_info(computer, keys=None):
+def c_info(computer):
     """Returns a a dictionary of general information about the computer.
-    It has a default list of information it returns but you can optionally
-    pass it your own.
     """
-    if not keys:
-        keys = _c_info_keys
     dict = {}
-    for key in keys:
+    for key in _c_info_keys:
         dict.update({key[1]: computer.findtext(key[0])})
     for cc in _c_info_convert_keys:
-        if cc[0] in dict:
-            dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        dict[cc[0]] = convert(dict[cc[0]], cc[1])
     return dict
 
 
 # apps to ignore in app list (Apple apps)
-_c_ignore_apps = [
+_c_apps_ignore = [
     # Standard Apple apps
     'Activity Monitor',
     'AirPort Utility',
@@ -228,11 +222,11 @@ def c_apps(computer, ignore=None):
     """Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore. It also
-    removeds the `.app` at the end of the file name since  by definition
+    removeds the `.app` at the end of the file name since by definition
     an app has it but people don't usually see it :)
     """
     if not ignore:
-        ignore = _c_ignore_apps
+        ignore = _c_apps_ignore
     dict = {}
     for app in computer.findall('software/applications/application'):
         nm = app.findtext('name').split('.')[0]
@@ -242,7 +236,7 @@ def c_apps(computer, ignore=None):
 
 
 def c_attributes(computer):
-    """Returns a dictionary of the computers extension attributes. Each is
+    """Returns a dictionary of the computer's extension attributes. Each is
     added twice so you can get the value by the attribute name or id. Only
     gives you the value, not the type.
     """
@@ -304,6 +298,11 @@ _c_certificates_keys = [
     ['name', 'name'],
 ]
 
+_c_certificates_convert_keys = [
+    ['utc', 'DUCT'],
+    ['epoch', 'EPOK'],
+]
+
 
 def c_certificates(computer):
     """Returns an array containing a dictionary for each cetificate on
@@ -314,10 +313,8 @@ def c_certificates(computer):
         dict = {}
         for key in _c_certificates_keys:
             dict.update({key[1]: cert.findtext(key[0])})
-        if dict['utc']:
-            dict['utc'] = convert(dict['utc'], 'DUTC')
-        if dict['epoch']:
-            dict['epoch'] = convert(dict['epoch'], 'EPOK')
+        for cc in _c_cert_convert_keys:
+            dict[cc[0]] = convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
 
@@ -334,21 +331,18 @@ _c_profiles_convert_keys = [
 ]
 
 
-def c_profiles(computer, keys=None):
+def c_profiles(computer):
     """Returns an array containing a dictionary for each configuration
     profile on the computer.
     """
-    if not keys:
-        keys = _c_profiles_keys
     ar = []
     for profile in computer.findall(
             'configuration_profiles/configuration_profile'):
         dict = {}
-        for key in _prof_keys:
+        for key in _c_profiles_keys:
             dict.update({key: profile.findtext(key)})
         for cc in _c_profiles_convert_keys:
-            if cc[0] in dict:
-                dict[cc[0]] = convert(dict[cc[0]], cc[1])
+            dict[cc[0]] = convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
 
@@ -388,18 +382,14 @@ _c_packages_convert_keys = [
 ]
 
 
-def package(package, keys=None):
+def package(package):
     """Returns a dictionary of info about a package.
     """
-    if not keys:
-        keys = _c_packages_keys
     dict = {}
-    for key in keys:
+    for key in _c_packages_keys:
         dict.update({key[1]: package.findtext(key[0])})
     for cc in _c_packages_convert_keys:
-        if cc[0] in dict:
-            dict[cc[0]] = convert(dict[cc[0]], cc[1])
-
+        dict[cc[0]] = convert(dict[cc[0]], cc[1])
     return dict
 
 
@@ -464,19 +454,16 @@ _pol_pak_convert_keys = [
 ]
 
 
-def policy(policy, keys=None):
-    """Returns a dictionary of info about a policy. The key `'paks'` is an
+def policy(policy):
+    """Returns a dictionary of info about a policy. The key 'paks' is an
     array of dictionaries with info on the packages included in the policy
-    and the key `'scripts'` does the same for scripts.
+    and the key 'scripts' does the same for scripts.
     """
-    if not keys:
-        keys = _pol_keys
     dict = {}
-    for key in keys:
+    for key in _pol_keys:
         dict.update({key[1]: policy.findtext(key[0])})
     for cc in _pol_convert_keys:
-        if cc[0] in dict:
-            dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        dict[cc[0]] = convert(dict[cc[0]], cc[1])
     # build list of packages in policy
     paks = []
     if dict['pak_count'] == '0':
@@ -519,13 +506,11 @@ _script_keys = [
 ]
 
 
-def script(script, keys=None):
+def script(script):
     """Returns a dictionary of info about a script.
     """
-    if not keys:
-        keys = _script_keys
     dict = {}
-    for key in keys:
+    for key in _script_keys:
         dict.update({key[1]: script.findtext(key[0])})
     return dict
 
@@ -573,8 +558,8 @@ def computergroup(group):
     else:
         for criterion in group.findall('criteria/criterion'):
             this_crit = {}
-            for c_key in _group_criteria_keys:
-                this_crit.update({c_key: criterion.findtext(c_key)})
+            for cr_key in _group_criteria_keys:
+                this_crit.update({cr_key: criterion.findtext(cr_key)})
             criteria.append(this_crit)
     dict.update({'criteria': criteria})
     computers = []
@@ -583,9 +568,9 @@ def computergroup(group):
     else:
         for computer in group.findall('computers/computer'):
             this_comp = {}
-            for c_key in _group_computer_keys:
-                this_comp.update({c_key: computer.findtext(c_key)})
-            computers.append(this_crit)
+            for cm_key in _group_computer_keys:
+                this_comp.update({cm_key: computer.findtext(cm_key)})
+            computers.append(this_comp)
     dict.update({'computers': computers})
     return dict
 
@@ -605,10 +590,3 @@ def category(category):
         dict.update({key[1]: group.findtext(key[0])})
     dict['priority'] = convert(dict['priority'], 'INTN')
     return dict
-
-
-
-
-
-
-

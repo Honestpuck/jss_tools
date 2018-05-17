@@ -1,0 +1,23 @@
+<dock_item>
+  <id>1</id>
+  <name>App Store</name>
+  <type>App</type>
+  <path>file://localhost/Applications/App Store.app/</path>
+  <contents>
+    <dict>
+        <key>GUID</key>
+        <integer>-91117049</integer>
+        <key>tile-data</key>
+        <dict>
+            <key>file-data</key>
+        <dict>
+            <key>_CFURLString</key>
+            <string>file://localhost/Applications/App Store.app/</string>
+            <key>_CFURLStringType</key><integer>15</integer>
+        </dict>
+    <key>file-label</key><string>App Store</string>
+    </dict>
+    <key>tile-type</key><string>file-tile</string>
+    </dict>
+    </contents>
+</dock_item>

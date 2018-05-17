@@ -2,7 +2,7 @@
 # OS compliance
 #
 
-import jss_tools as t
+from jss_tools import *
 import sys
 from distutils.version import StrictVersion
 
@@ -37,12 +37,12 @@ def check_one(info):
         return
 
 
-j = t.Jopen()
+j = Jopen()
 
-computer_list = j.Computer()
-
-for computer in computer_list:
-    this_computer = computer.retrieve()
-    info = t.c_info(this_computer)
+for computer in j.Computer():
+    # check_one(c_info(computer.retrieve()))
+    # unfolded version for demo purposes
+    one_computer = computer.retrieve()
+    info = c_info(one_computer)
     check_one(info)
 

@@ -4,7 +4,7 @@ This is a collection of small tool routines to make working with the data return
 
 At their core they turn the XML from the JSS into python data structures. It also converts the strings returned to valid python types where possible.
 
-*This is currently under continual developent. At the moment it is working
+*This is currently under continual development. At the moment it is working
 and passing all tests.*
 
 For details on the functions `pydoc ./jss_tools.py` will get you the
