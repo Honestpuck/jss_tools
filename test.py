@@ -3,6 +3,9 @@
 #
 # A bunch of code to test jss_tools.py
 #
+# NOTE: I test functions that write to the JSS by hand as I don'text
+# want to bork my JSS - even my test one :)
+#
 
 import jss_tools as tools
 from random import randrange
@@ -20,22 +23,11 @@ computers = jss.Computer()
 one_computer = jss.Computer(computers[22]['id'])
 
 # test info
-c_keys = [
-    ['general/name', 'name'],
-    ['general/mac_address', 'mac'],
-    ['general/serial_number', 'serial'],
-]
 
 info_A = tools.c_info(one_computer)
-info_B = tools.c_info(one_computer, c_keys)
 info_old = one_computer.find('general/serial_number').text
 
-if 'initial' in info_B:
-    print "c_info keys: failed"
-else:
-    print "c_info keys: passed"
-
-if info_A['serial'] == info_B['serial'] and info_B['serial'] == info_old:
+if info_A['serial'] == info_old:
     print "c_info: passed"
 else:
     print "c_info: failed"
@@ -201,12 +193,12 @@ if old_name == script['name']:
     print "script: passed"
 else:
     print "script: failed"
+
 # test computergroups
 
 computergroups = jss.ComputerGroup()
 c_group_len = len(computergroups)
-one_c_group = jss.ComputerGroup(
-    computergroups[randrange(c_group_len)]['id'])
+one_c_group = jss.ComputerGroup(computergroups[randrange(c_group_len)]['id'])
 c_group = tools.computergroup(one_c_group)
 
 old_name = one_c_group.findtext('name')
@@ -230,3 +222,18 @@ if old_value == cg_value:
     print "computergroup criteria: passed"
 else:
     print "computergroup criteria: failed"
+
+# test categories
+categories = jss.Category()
+one_cat = jss.Category(categories[5]['id'])
+old_priority = one_cat.findtext('priority')
+cat = tools.category(one_cat)
+
+if int(old_priority) == cat['priority']:
+    print "category: passed"
+else:
+    print "category: failed"
+
+
+
+

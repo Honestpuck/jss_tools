@@ -13,9 +13,8 @@ def printf(format, *args):
 
 
 def non_compliance(info, reason):
-    printf("%s\t%s\t%s\t%s\t%s-%s\n",
-           info['machine_name'], info['name'], info['email'],
-           reason, str(info['os']), str(info['os_build']))
+    printf("%s\t%s\t%s\t%s\t%s-%s\n", info['machine_name'], info['name'],
+           info['email'], reason, str(info['os']), str(info['os_build']))
 
 
 def check_one(info):
@@ -40,9 +39,8 @@ def check_one(info):
 j = Jopen()
 
 for computer in j.Computer():
-    # check_one(c_info(computer.retrieve()))
+    check_one(c_info(computer.retrieve()))
     # unfolded version for demo purposes
-    one_computer = computer.retrieve()
-    info = c_info(one_computer)
-    check_one(info)
-
+#     one_computer = computer.retrieve()
+#     info = c_info(one_computer)
+#     check_one(info)

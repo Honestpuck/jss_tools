@@ -1,12 +1,10 @@
 #
-# JSS_tools.py
+# jss_tools.py
 #
 # functions to turn a JSS records into more useful
 # python variables, mostly dictionaries and arrays.
 #
-# Tony Williams (ARW)
-#
-# 10 May 2018
+# Tony Williams
 #
 """A collection of routines to convert JSS XML into python variables
 
@@ -27,16 +25,16 @@ https://github.com/sheagcraig/python-jss
 """
 
 __author__ = "Tony Williams"
-__version__ = 0.6
-__date__ = '16 May 2018'
+__version__ = 1.1
+__date__ = '25 May 2018'
 
-# required for jss
 import jss
 import getpass
-
-# for string to date conversion
 from dateutil import parser
 from datetime import datetime
+from time import mktime
+from copy import deepcopy
+
 
 # some low level useful routines
 def convert(val, typ):
@@ -67,6 +65,31 @@ def convert(val, typ):
     }[typ](val)
 
 
+def convert_back(val, typ):
+    """The reverse of convert. Takes a python variable and converts it to a
+    string ready for the JSS.
+    """
+    return {
+        'BOOL': lambda x: str(x).lower(),
+        'INTN': lambda x: str(x),
+        'DATE': lambda x: str(x),
+        'DUTC': lambda x: str(x),
+        'EPOK': lambda x: mktime(x.timetuple()) * 1000,
+        'TIME': lambda x: str(x),
+    }[typ](val)
+
+
+def to_date(dt):
+    """Takes a datetime object and returns a date string in JSS format of
+    YYYY-MM-DD HH:MM:SS throwing away any microseconds.
+    """
+    d = str(dt)
+    if '.' in d:
+        return d.split('.')[0]
+    else:
+        return d
+
+
 def now():
     '''right now in datetime format.
 
@@ -77,11 +100,15 @@ def now():
     return datetime.now()
 
 
-def Jopen():
+def Jopen(pref=None):
     """Open a connection to the JSS. Asks for your password,
-    returns connector
+    returns connector. If you want to enter the URL and user
+    pass it 'True'.
     """
     jss_prefs = jss.JSSPrefs()
+    if pref:
+        jss_prefs.url = raw_input("URL: ")
+        jss_prefs.user = raw_input("User: ")
     jss_prefs.password = getpass.getpass()
     return jss.JSS(jss_prefs)
 
@@ -114,6 +141,8 @@ _c_info_keys = [
     ['location/username', 'user'],
     ['location/real_name', 'name'],
     ['location/email_address', 'email'],
+    ['location/building', 'building'],
+    ['location/room', 'room'],
     # purchasing
     # ['purchasing/is_purchased', 'purchased'],
     # ['purchasing/is_leased', 'leased'],
@@ -141,7 +170,6 @@ _c_info_convert_keys = [
 ]
 
 
-# general information
 def c_info(computer):
     """Returns a a dictionary of general information about the computer.
     """
@@ -151,6 +179,18 @@ def c_info(computer):
     for cc in _c_info_convert_keys:
         dict[cc[0]] = convert(dict[cc[0]], cc[1])
     return dict
+
+
+def c_info_write(info, computer):
+    """Writes out any changed computer info. Pass it the info
+    dictionary with changed info and the object returned from jss.Computer()
+    """
+    our_info = deepcopy(info)
+    for key in _c_info_convert_keys:
+        our_info[key[0]] = convert_back(our_info[key[0]], key[1])
+    for key in _c_info_keys:
+        computer.find(key[0]).text = our_info[key[1]]
+    computer.save()
 
 
 # apps to ignore in app list (Apple apps)
@@ -236,17 +276,25 @@ def c_apps(computer, ignore=None):
 
 
 def c_attributes(computer):
-    """Returns a dictionary of the computer's extension attributes. Each is
-    added twice so you can get the value by the attribute name or id. Only
-    gives you the value, not the type.
+    """Returns a dictionary of the computer's extension attributes. Key is
+    the attribute name. Only gives you the value, not the type.
     """
     dict = {}
     for attr in computer.findall('extension_attributes/extension_attribute'):
-        id = attr.findtext('id')
+        dict.update({attr.findtext('name'): attr.findtext('value')})
+    return dict
+
+
+def c_attributes_write(attribs, computer):
+    """Writes out any changed extension attributes. Pass it the attribute
+    dictionary with changed attributes and object returned from jss.Computer()
+    """
+    for attr in computer.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
         val = attr.findtext('value')
-        dict.update({id: val, nm: val})
-    return dict
+        if attribs[nm] != val:
+            attr.find('value').text = attribs[nm]
+    computer.save()
 
 
 def c_groups(computer):
@@ -299,13 +347,13 @@ _c_certificates_keys = [
 ]
 
 _c_certificates_convert_keys = [
-    ['utc', 'DUCT'],
+    ['utc', 'DUTC'],
     ['epoch', 'EPOK'],
 ]
 
 
 def c_certificates(computer):
-    """Returns an array containing a dictionary for each cetificate on
+    """Returns an array containing a dictionary for each certificate on
     the computer.
     """
     ar = []
@@ -313,7 +361,7 @@ def c_certificates(computer):
         dict = {}
         for key in _c_certificates_keys:
             dict.update({key[1]: cert.findtext(key[0])})
-        for cc in _c_cert_convert_keys:
+        for cc in _c_certificates_convert_keys:
             dict[cc[0]] = convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
@@ -349,7 +397,7 @@ def c_profiles(computer):
 
 # Other record types
 
-_c_packages_keys = [
+_packages_keys = [
     ['id', 'id'],
     ['name', 'name'],
     ['category', 'category'],
@@ -371,7 +419,7 @@ _c_packages_keys = [
     ['send_notification', 'send_not'],
 ]
 
-_c_packages_convert_keys = [
+_packages_convert_keys = [
     ['reboot', 'BOOL'],
     ['fill_user', 'BOOL'],
     ['fill', 'BOOL'],
@@ -386,9 +434,9 @@ def package(package):
     """Returns a dictionary of info about a package.
     """
     dict = {}
-    for key in _c_packages_keys:
+    for key in _packages_keys:
         dict.update({key[1]: package.findtext(key[0])})
-    for cc in _c_packages_convert_keys:
+    for cc in _packages_convert_keys:
         dict[cc[0]] = convert(dict[cc[0]], cc[1])
     return dict
 
@@ -515,7 +563,7 @@ def script(script):
     return dict
 
 
-_group_keys = [
+_computergroup_keys = [
     ['id', 'id'],
     ['name', 'name'],
     ['is_smart', 'smart'],
@@ -525,7 +573,7 @@ _group_keys = [
     ['computers/size', 'computers_count'],
 ]
 
-_group_criteria_keys = [
+_computergroup_criteria_keys = [
     'name',
     'priority',
     'and_or',
@@ -533,7 +581,7 @@ _group_criteria_keys = [
     'value',
 ]
 
-_group_computer_keys = [
+_computergroup_computer_keys = [
     'id',
     'name',
     'mac_address',
@@ -549,7 +597,7 @@ def computergroup(group):
     of the group.
     """
     dict = {}
-    for key in _group_keys:
+    for key in _computergroup_keys:
         dict.update({key[1]: group.findtext(key[0])})
     dict['smart'] = convert(dict['smart'], 'BOOL')
     criteria = []
@@ -558,7 +606,7 @@ def computergroup(group):
     else:
         for criterion in group.findall('criteria/criterion'):
             this_crit = {}
-            for cr_key in _group_criteria_keys:
+            for cr_key in _computergroup_criteria_keys:
                 this_crit.update({cr_key: criterion.findtext(cr_key)})
             criteria.append(this_crit)
     dict.update({'criteria': criteria})
@@ -568,7 +616,7 @@ def computergroup(group):
     else:
         for computer in group.findall('computers/computer'):
             this_comp = {}
-            for cm_key in _group_computer_keys:
+            for cm_key in _computergroup_computer_keys:
                 this_comp.update({cm_key: computer.findtext(cm_key)})
             computers.append(this_comp)
     dict.update({'computers': computers})
@@ -587,6 +635,7 @@ def category(category):
     """
     dict = {}
     for key in _category_keys:
-        dict.update({key[1]: group.findtext(key[0])})
+        dict.update({key: category.findtext(key)})
     dict['priority'] = convert(dict['priority'], 'INTN')
     return dict
+

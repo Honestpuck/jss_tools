@@ -2,6 +2,7 @@
 # old way
 #
 
+
 def non_compliance(rec, reason):
     mac_name = rec.findtext('general/name')
     name = rec.findtext('location/real_name')
