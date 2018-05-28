@@ -6,8 +6,8 @@ At their core they turn the XML from the JSS into python data structures. It als
 
 Included are a small number of utility routines, most notably `convert` to convert strings to python data types, `Jopen` to open up a connection to the JSS, `c_attributes_write` to write changed extension attributes in a computer record back to the JSS.
 
-*This is currently under continual development. At the moment it is working
-and passing all tests.*
+*This is currently under development. At the moment it is working
+and passing all tests.* The master branch should be working, the other branches may not be.
 
 For details on the functions `pydoc ./jss_tools.py` will get you the
 documentation.
