@@ -82,4 +82,4 @@ for mac in c_group['computers']:
         if attribs['SIP status'] == 'disabled':
             ii = tools.c_info(mac)
             printf("ID: %s User: %s Email: %s\n",
-                    ii['id'], ii['name'], ii['email'])
+                   ii['id'], ii['name'], ii['email'])

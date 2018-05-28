@@ -3,7 +3,7 @@
 #
 # A bunch of code to test jss_tools.py
 #
-# NOTE: I test functions that write to the JSS by hand as I don'text
+# NOTE: I test functions that write to the JSS by hand as I don't
 # want to bork my JSS - even my test one :)
 #
 
@@ -19,8 +19,8 @@ jss = tools.Jopen()
 # get computer list
 computers = jss.Computer()
 
-# get one computer (22 is just a random number)
-one_computer = jss.Computer(computers[22]['id'])
+# get one computer (417 is just a random number)
+one_computer = jss.Computer('417')
 
 # test info
 
@@ -233,7 +233,3 @@ if int(old_priority) == cat['priority']:
     print "category: passed"
 else:
     print "category: failed"
-
-
-
-

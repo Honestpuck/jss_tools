@@ -1,7 +1,7 @@
 #
 # jss_tools.py
 #
-# functions to turn a JSS records into more useful
+# functions to turn JSS records into more useful
 # python variables, mostly dictionaries and arrays.
 #
 # Tony Williams
@@ -18,6 +18,8 @@ where possible.
 Most of the functions have a matching array of keys that are used. These can
 can be discovered as _<function name>_keys.
 
+There are also a few other useful routines.
+
 Latest version can be found at https://github.com/Honestpuck/jss_tools
 
 You will neeed python-jss working. Details at
@@ -25,8 +27,8 @@ https://github.com/sheagcraig/python-jss
 """
 
 __author__ = "Tony Williams"
-__version__ = 1.1
-__date__ = '25 May 2018'
+__version__ = 1.2
+__date__ = '28 May 2018'
 
 import jss
 import getpass
@@ -638,4 +640,3 @@ def category(category):
         dict.update({key: category.findtext(key)})
     dict['priority'] = convert(dict['priority'], 'INTN')
     return dict
-

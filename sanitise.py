@@ -8,10 +8,10 @@ import random
 
 jss = tools.Jopen(True)
 surnames = []
-for line in open ('/Users/u398570/dev/bits/surnames.txt', 'r'):
+for line in open('/Users/u398570/dev/bits/surnames.txt', 'r'):
     surnames.append(line.strip())
 firsts = []
-for line in open ('/Users/u398570/dev/bits/first.txt', 'r'):
+for line in open('/Users/u398570/dev/bits/first.txt', 'r'):
     firsts.append(line.strip())
 
 for entry in jss.Computer():
@@ -31,7 +31,3 @@ for entry in jss.Computer():
     info['serial'] = new_serial
     info['user'] = first + surname[0]
     tools.c_info_write(info, computer)
-
-
-
-
