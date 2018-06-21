@@ -33,13 +33,13 @@ __date__ = '28 May 2018'
 import jss
 import getpass
 from dateutil import parser
-from datetime import datetime
-from time import mktime
-from copy import deepcopy
+import datetime
+import time
+import copy
 
 
 # some low level useful routines
-def convert(val, typ):
+def Convert(val, typ):
     """Takes a string value from JSS converts it type 'typ''.
     `typ` is one of:
     'BOOL', Boolean
@@ -54,20 +54,21 @@ def convert(val, typ):
     NOTE: The conversions DATE, DUTC and TIME use the parser routine from
     dateutils so they can accept a wide variety of formats, not just the one
     used in the JSS so you may find it easier to run convert on such as
-    '10 Dec 2017' rather than build your own datetime object for comparison
-    purposes. That's one reason for exposing it.
+    '10 Dec 2017 10:30AM' rather than build your own datetime object for
+    comparison purposes. That's one reason for exposing it.
     """
     return {
         'BOOL': lambda x: x == 'true',
         'INTN': lambda x: int(x),
         'DATE': lambda x: parser.parse(x),
-        'DUTC': lambda x: parser.parse(x),
-        'EPOK': lambda x: datetime.fromtimestamp(int(x)/1000),
+        'DUTC': lambda x: dateutil.parser.parse(x),
+        'EPOK': lambda x: datetime.datetime.fromtimestamp(int(x)/1000),
         'TIME': lambda x: parser.parse(x),
+        'STRG': lambda x: x,
     }[typ](val)
 
 
-def convert_back(val, typ):
+def Convert_back(val, typ):
     """The reverse of convert. Takes a python variable and converts it to a
     string ready for the JSS.
     """
@@ -76,30 +77,20 @@ def convert_back(val, typ):
         'INTN': lambda x: str(x),
         'DATE': lambda x: str(x),
         'DUTC': lambda x: str(x),
-        'EPOK': lambda x: mktime(x.timetuple()) * 1000,
+        'EPOK': lambda x: time.mktime(x.timetuple()) * 1000,
         'TIME': lambda x: str(x),
+        'STRG': lambda x: x,
     }[typ](val)
 
 
-def to_date(dt):
-    """Takes a datetime object and returns a date string in JSS format of
-    YYYY-MM-DD HH:MM:SS throwing away any microseconds.
-    """
-    d = str(dt)
-    if '.' in d:
-        return d.split('.')[0]
-    else:
-        return d
-
-
-def now():
+def Now():
     '''right now in datetime format.
 
     The sole purpose of this function is to remove the need to import
     'datetime' in your code and remember that it is `datetime.datetime.now()`
     just so we can get right now for comparison purposes. Yes, OK, I'm lazy.
     '''
-    return datetime.now()
+    return datetime.datetime.now()
 
 
 def Jopen(pref=None):
@@ -125,8 +116,8 @@ _c_info_keys = [
     ['general/alt_mac_address', 'mac2'],
     ['general/ip_address', 'ip'],
     ['general/serial_number', 'serial'],
-    ['general/barcode_1', 'bar1'],
-    ['general/barcode_2', 'bar2'],
+    ['general/barcode_1', 'barcode1'],
+    ['general/barcode_2', 'barcode2'],
     ['general/asset_tag', 'tag'],
     ['general/remote_management/managed', 'managed'],
     ['general/mdm_capable', 'mdm'],
@@ -136,7 +127,7 @@ _c_info_keys = [
     ['hardware/model_identifier', 'model_id'],
     ['hardware/os_version', 'os'],
     ['hardware/os_build', 'os_build'],
-    ['hardware/master_password_set', 'master'],
+    ['hardware/master_password_set', 'master_set'],
     ['hardware/active_directory_status', 'AD'],
     ['hardware/institutional_recovery_key', 'recovery'],
     # user
@@ -150,15 +141,15 @@ _c_info_keys = [
     # ['purchasing/is_leased', 'leased'],
     # ['purchasing/po_number', 'po_num'],
     # ['purchasing/vendor', 'vendor'],
-    # ['purchasing/applecare_id', 'applecare'],
+    # ['purchasing/applecare_id', 'applecare_id'],
     # ['purchasing/purchase_price', 'price'],
     # ['purchasing/purchasing_account', 'pur_account'],
     # ['purchasing/po_date', 'po_date'],
-    # ['purchasing/warranty_expires', 'warranty'],
-    # ['purchasing/lease_expires', 'lease'],
+    # ['purchasing/warranty_expires', 'warranty_epires'],
+    # ['purchasing/lease_expires', 'lease_expires'],
     # ['purchasing/purchasing_contact', 'pur_contact'],
     # ['purchasing/os_applecare_id', 'applecare'],
-    # ['purchasing/os_maintenance_expires', 'maintenance'],
+    # ['purchasing/os_maintenance_expires', 'maintenance_expires'],
     ['configuration_profiles/size', 'profiles_count']
 ]
 
@@ -166,8 +157,8 @@ _c_info_convert_keys = [
     ['initial', 'DATE'],
     ['last', 'TIME'],
     ['managed', 'BOOL'],
-    ['master', 'BOOL'],
-    ['mdm', 'BOOL'],
+    ['master_set', 'BOOL'],
+    ['mdm_capable', 'BOOL'],
     ['profiles_count', 'INTN']
 ]
 
@@ -179,7 +170,7 @@ def c_info(computer):
     for key in _c_info_keys:
         dict.update({key[1]: computer.findtext(key[0])})
     for cc in _c_info_convert_keys:
-        dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        dict[cc[0]] = Convert(dict[cc[0]], cc[1])
     return dict
 
 
@@ -187,9 +178,9 @@ def c_info_write(info, computer):
     """Writes out any changed computer info. Pass it the info
     dictionary with changed info and the object returned from jss.Computer()
     """
-    our_info = deepcopy(info)
+    our_info = copy.deepcopy(info)
     for key in _c_info_convert_keys:
-        our_info[key[0]] = convert_back(our_info[key[0]], key[1])
+        our_info[key[0]] = Convert_back(our_info[key[0]], key[1])
     for key in _c_info_keys:
         computer.find(key[0]).text = our_info[key[1]]
     computer.save()
@@ -264,8 +255,8 @@ def c_apps(computer, ignore=None):
     """Returns a dictionary of the apps installed. Key is name and value is
     version. It ignores the Apple apps or the apps listed in the optional
     paramater 'ignore', which is an array of app names to ignore. It also
-    removeds the `.app` at the end of the file name since by definition
-    an app has it but people don't usually see it :)
+    removeds the `.app` at the end of the file name since  an app has it
+    but people don't usually see it :)
     """
     if not ignore:
         ignore = _c_apps_ignore
@@ -279,11 +270,15 @@ def c_apps(computer, ignore=None):
 
 def c_attributes(computer):
     """Returns a dictionary of the computer's extension attributes. Key is
-    the attribute name. Only gives you the value, not the type.
+    the attribute name.The dictionary value is a dictionary with keys 'value'
+    and 'type'.
     """
     dict = {}
     for attr in computer.findall('extension_attributes/extension_attribute'):
-        dict.update({attr.findtext('name'): attr.findtext('value')})
+        nm = attr.findtext('name')
+        ty = attr.findtext('type')
+        vl = Convert(attr.findtext('value', ty))
+        dict.update({nm: {'value': vl, 'type': ty)})
     return dict
 
 
@@ -294,8 +289,9 @@ def c_attributes_write(attribs, computer):
     for attr in computer.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
         val = attr.findtext('value')
-        if attribs[nm] != val:
-            attr.find('value').text = attribs[nm]
+        if attribs[nm]['value'] != val:
+            new_val = Convert_back(attribs[nm]['value'], attribs[nm]['type'])
+            attr.find('value').text = new_val
     computer.save()
 
 
@@ -335,7 +331,7 @@ def c_users(computer):
             for key in _c_user_keys:
                 dict.update({key: u.findtext(key)})
             for cc in _c_user_convert_keys:
-                dict[cc[0]] = convert(dict[cc[0]], cc[1])
+                dict[cc[0]] = Convert(dict[cc[0]], cc[1])
             ar.append(dict)
     return ar
 
@@ -364,7 +360,7 @@ def c_certificates(computer):
         for key in _c_certificates_keys:
             dict.update({key[1]: cert.findtext(key[0])})
         for cc in _c_certificates_convert_keys:
-            dict[cc[0]] = convert(dict[cc[0]], cc[1])
+            dict[cc[0]] = Convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
 
@@ -392,7 +388,7 @@ def c_profiles(computer):
         for key in _c_profiles_keys:
             dict.update({key: profile.findtext(key)})
         for cc in _c_profiles_convert_keys:
-            dict[cc[0]] = convert(dict[cc[0]], cc[1])
+            dict[cc[0]] = Convert(dict[cc[0]], cc[1])
         ar.append(dict)
     return ar
 
@@ -439,7 +435,7 @@ def package(package):
     for key in _packages_keys:
         dict.update({key[1]: package.findtext(key[0])})
     for cc in _packages_convert_keys:
-        dict[cc[0]] = convert(dict[cc[0]], cc[1])
+        dict[cc[0]] = Convert(dict[cc[0]], cc[1])
     return dict
 
 
@@ -513,8 +509,8 @@ def policy(policy):
     for key in _pol_keys:
         dict.update({key[1]: policy.findtext(key[0])})
     for cc in _pol_convert_keys:
-        dict[cc[0]] = convert(dict[cc[0]], cc[1])
-    # build list of packages in policy
+        dict[cc[0]] = Convert(dict[cc[0]], cc[1])
+
     paks = []
     if dict['pak_count'] == '0':
         paks = [None]
@@ -524,10 +520,10 @@ def policy(policy):
             for pak_key in _pol_pak_keys:
                 this_pak.update({pak_key: pak.findtext(pak_key)})
             for cc in _pol_pak_convert_keys:
-                this_pak[cc[0]] = convert(this_pak[cc[0]], cc[1])
+                this_pak[cc[0]] = Convert(this_pak[cc[0]], cc[1])
             paks.append(this_pak)
     dict.update({'paks': paks})
-    # build list of scripts in policy
+
     scripts = []
     if dict['script_count'] == '0':
         scripts = [None]
@@ -538,6 +534,7 @@ def policy(policy):
                 this_script.update({s_key: script.findtext(s_key)})
             scripts.append(this_script)
     dict.update({'scripts': scripts})
+
     return dict
 
 
@@ -601,7 +598,8 @@ def computergroup(group):
     dict = {}
     for key in _computergroup_keys:
         dict.update({key[1]: group.findtext(key[0])})
-    dict['smart'] = convert(dict['smart'], 'BOOL')
+    dict['smart'] = Convert(dict['smart'], 'BOOL')
+
     criteria = []
     if dict['crit_count'] == 0:
         criteria = [None]
@@ -612,6 +610,7 @@ def computergroup(group):
                 this_crit.update({cr_key: criterion.findtext(cr_key)})
             criteria.append(this_crit)
     dict.update({'criteria': criteria})
+
     computers = []
     if dict['computers_count'] == 0:
         computers = [None]
@@ -622,6 +621,7 @@ def computergroup(group):
                 this_comp.update({cm_key: computer.findtext(cm_key)})
             computers.append(this_comp)
     dict.update({'computers': computers})
+
     return dict
 
 
@@ -638,5 +638,5 @@ def category(category):
     dict = {}
     for key in _category_keys:
         dict.update({key: category.findtext(key)})
-    dict['priority'] = convert(dict['priority'], 'INTN')
+    dict['priority'] = Convert(dict['priority'], 'INTN')
     return dict

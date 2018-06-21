@@ -25,7 +25,7 @@ If there is a python-jss call not covered that you would like then please reach 
 
 #### examples.py
 
-A tiny file with an example of the old style and new style. For more examples look in `test.py`.
+A tiny file with an example of the new style. `old.py` contains the old code.
 
 ### compliance.py
 

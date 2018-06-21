@@ -50,29 +50,29 @@ def non_compliance(rec, reason):
     printf("%s\t%s", name, reason)
 
 
-# new way
-for record in computer_list:
-    computer = record.retrieve()
-    attribute = tools.attributes()
-    if attribute['SIP Status'] == 'disabled':
-        non_compliance(computer, 'SIP status')
-        break
-    if attribute['Carbon Black Running'] in ['disabled', 'missing']:
-        non_compliance(computer, 'Carbon Black')
-        break
-    if attribute['Internet Sharing'] == 'Enabled':
-        non_compliance(computer, 'Internet Sharing')
-        break
+    # new way
+    for record in computer_list:
+        computer = record.retrieve()
+        attribute = tools.attributes(computer)
+        if attribute['SIP Status'] == 'disabled':
+            non_compliance(computer, 'SIP status')
+            break
+        if attribute['Carbon Black Running'] in ['disabled', 'missing']:
+            non_compliance(computer, 'Carbon Black')
+            break
+        if attribute['Internet Sharing'] == 'Enabled':
+            non_compliance(computer, 'Internet Sharing')
+            break
 
 
 # more examples
 
-# extract data from a smart group
-c_group = tools.computergroup(jss.ComputerGroup(79))
-for mac in c_group['computers']:
-    ii = tools.c_info(jss.Computer(mac['id']))
-    printf("User: %s Email: %s OS: %s Build: %s\n", ii['name'],
-           ii['email'], ii['os'], ii['os_build'])
+    # extract data from a smart group
+    c_group = tools.computergroup(jss.ComputerGroup(79))
+    for mac in c_group['computers']:
+        ii = tools.c_info(jss.Computer(mac['id']))
+        printf("User: %s Email: %s OS: %s Build: %s\n", ii['name'],
+               ii['email'], ii['os'], ii['os_build'])
 
 # check an attribute
 
