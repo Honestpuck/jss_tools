@@ -10,7 +10,7 @@
 import jss_tools as tools
 from random import randrange
 
-jss = tools.Jopen()
+jss = tools.Jopen(True)
 
 #
 # COMPUTER RECORD
@@ -19,8 +19,8 @@ jss = tools.Jopen()
 # get computer list
 computers = jss.Computer()
 
-# get one computer (417 is just a random number)
-one_computer = jss.Computer('417')
+# get one computer (64 is just a random number)
+one_computer = jss.Computer('64')
 
 # test info
 

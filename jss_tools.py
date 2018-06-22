@@ -24,11 +24,19 @@ Latest version can be found at https://github.com/Honestpuck/jss_tools
 
 You will neeed python-jss working. Details at
 https://github.com/sheagcraig/python-jss
+
+## A Note On Extension Attributes
+
+JAMF do not support an extension attribute boolean type. A boolean type is so
+useful in programming that I fake it. If you have an EA of type 'String' that
+contains 'True', 'False', '1' or '0' I convert it to a boolean and convert it
+back if required. I don't check the type 'Number' for 0 or 1 for obvious
+reasons.
 """
 
 __author__ = "Tony Williams"
-__version__ = 1.2
-__date__ = '28 May 2018'
+__version__ = 1.3
+__date__ = '21 June 2018'
 
 import jss
 import getpass
@@ -47,7 +55,9 @@ def Convert(val, typ):
     'DUTC', Date with UTC timezone information
     'EPOK', Unix epoch
     'INTN', Integer
-    'TIME'. Date and time
+    'TIME', Date and time
+    'EBOL', A boolean extension attribute stored in a string 'True' or 'False'
+    'ENBL', A boolean extension attribute stored in a string '1' or '0'
 
     The date routines and TIME return a datetime object.
 
@@ -58,13 +68,15 @@ def Convert(val, typ):
     comparison purposes. That's one reason for exposing it.
     """
     return {
-        'BOOL': lambda x: x == 'true',
+        'BOOL': lambda x: x.lower() == 'true',
         'INTN': lambda x: int(x),
         'DATE': lambda x: parser.parse(x),
-        'DUTC': lambda x: dateutil.parser.parse(x),
+        'DUTC': lambda x: parser.parse(x),
         'EPOK': lambda x: datetime.datetime.fromtimestamp(int(x)/1000),
         'TIME': lambda x: parser.parse(x),
         'STRG': lambda x: x,
+        'EBOL': lambda x: x == 'True',
+        'ENBL': lambda x: x == '1',
     }[typ](val)
 
 
@@ -80,6 +92,8 @@ def Convert_back(val, typ):
         'EPOK': lambda x: time.mktime(x.timetuple()) * 1000,
         'TIME': lambda x: str(x),
         'STRG': lambda x: x,
+        'EBOL': lambda x: str(x),
+        'ENBL': lambda x: '1' if x else '0'
     }[typ](val)
 
 
@@ -130,7 +144,6 @@ _c_info_keys = [
     ['hardware/master_password_set', 'master_set'],
     ['hardware/active_directory_status', 'AD'],
     ['hardware/institutional_recovery_key', 'recovery'],
-    # user
     ['location/username', 'user'],
     ['location/real_name', 'name'],
     ['location/email_address', 'email'],
@@ -145,7 +158,7 @@ _c_info_keys = [
     # ['purchasing/purchase_price', 'price'],
     # ['purchasing/purchasing_account', 'pur_account'],
     # ['purchasing/po_date', 'po_date'],
-    # ['purchasing/warranty_expires', 'warranty_epires'],
+    # ['purchasing/warranty_expires', 'warranty_expires'],
     # ['purchasing/lease_expires', 'lease_expires'],
     # ['purchasing/purchasing_contact', 'pur_contact'],
     # ['purchasing/os_applecare_id', 'applecare'],
@@ -158,7 +171,7 @@ _c_info_convert_keys = [
     ['last', 'TIME'],
     ['managed', 'BOOL'],
     ['master_set', 'BOOL'],
-    ['mdm_capable', 'BOOL'],
+    ['mdm', 'BOOL'],
     ['profiles_count', 'INTN']
 ]
 
@@ -268,6 +281,12 @@ def c_apps(computer, ignore=None):
     return dict
 
 
+_c_attr_types = {
+    'String': 'STRG',
+    'Date': 'DATE',
+    'Number': 'INTN',
+}
+
 def c_attributes(computer):
     """Returns a dictionary of the computer's extension attributes. Key is
     the attribute name.The dictionary value is a dictionary with keys 'value'
@@ -277,8 +296,13 @@ def c_attributes(computer):
     for attr in computer.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
         ty = attr.findtext('type')
-        vl = Convert(attr.findtext('value', ty))
-        dict.update({nm: {'value': vl, 'type': ty)})
+        typ = _c_attr_types[ty]
+        if typ == 'STRG' & val in ['True', 'False']:
+            typ = 'EBOL'
+        if typ == 'STRG' & val in ['0', '1']:
+            typ = 'ENBL'
+        vl = Convert(attr.findtext('value'), typ)
+        dict.update({nm: {'value': vl, 'type': typ}})
     return dict
 
 

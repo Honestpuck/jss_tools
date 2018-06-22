@@ -31,3 +31,4 @@ for entry in jss.Computer():
     info['serial'] = new_serial
     info['user'] = first + surname[0]
     tools.c_info_write(info, computer)
+    print "Sanitised to: ", info['name']
