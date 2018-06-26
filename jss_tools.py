@@ -72,7 +72,7 @@ def Convert(val, typ):
         'INTN': lambda x: int(x),
         'DATE': lambda x: parser.parse(x),
         'DUTC': lambda x: parser.parse(x),
-        'EPOK': lambda x: datetime.datetime.fromtimestamp(int(x)/1000),
+        'EPOK': lambda x: datetime.datetime.fromtimestamp(x/1000),
         'TIME': lambda x: parser.parse(x),
         'STRG': lambda x: x,
         'EBOL': lambda x: x == 'True',
@@ -89,7 +89,7 @@ def Convert_back(val, typ):
         'INTN': lambda x: str(x),
         'DATE': lambda x: str(x),
         'DUTC': lambda x: str(x),
-        'EPOK': lambda x: time.mktime(x.timetuple()) * 1000,
+        'EPOK': lambda x: str(int((time.mktime(x.timetuple() * 1000)))),
         'TIME': lambda x: str(x),
         'STRG': lambda x: x,
         'EBOL': lambda x: str(x),
@@ -240,7 +240,7 @@ _c_apps_ignore = [
     'Preview',
     'QuickTime Player',
     'Reminders',
-    'Safari',
+    # 'Safari',  # Not Safari, sometimes updated outside a System Update
     'Script Editor',
     'Siri',
     'Stickies',
@@ -286,6 +286,7 @@ _c_attr_types = {
     'Date': 'DATE',
     'Number': 'INTN',
 }
+
 
 def c_attributes(computer):
     """Returns a dictionary of the computer's extension attributes. Key is
@@ -463,27 +464,27 @@ def package(package):
     return dict
 
 
-_pol_keys = [
-    ['general/id', 'id'],
-    ['general/name', 'name'],
-    ['general/enabled', 'enabled'],
-    ['general/trigger', 'trigger'],
-    ['general/trigger_checkin', 'checkin'],
-    ['general/trigger_enrollment_complete', 'enrollment'],
-    ['general/trigger_login', 'login'],
-    ['general/trigger_logout', 'logout'],
-    ['general/trigger_network_state_change', 'network'],
-    ['general/trigger_startup', 'startup'],
-    ['general/trigger_other', 'other'],
-    ['general/frequency', 'frequency'],
-    ['general/category/id', 'cat_id'],
-    ['general/category/name', 'cat_name'],
-    ['general/site/id', 'site_id'],
-    ['general/site/name', 'site_name'],
-    ['self_service/use_for_self_service', 'self_service'],
-    ['package_configuration/packages/size', 'pak_count'],
-    ['scripts/size', 'script_count'],
-]
+    _pol_keys = [
+        ['general/id', 'id'],
+        ['general/name', 'name'],
+        ['general/enabled', 'enabled'],
+        ['general/trigger', 'trigger'],
+        ['general/trigger_checkin', 'checkin'],
+        ['general/trigger_enrollment_complete', 'enrollment'],
+        ['general/trigger_login', 'login'],
+        ['general/trigger_logout', 'logout'],
+        ['general/trigger_network_state_change', 'network'],
+        ['general/trigger_startup', 'startup'],
+        ['general/trigger_other', 'other'],
+        ['general/frequency', 'frequency'],
+        ['general/category/id', 'cat_id'],
+        ['general/category/name', 'cat_name'],
+        ['general/site/id', 'site_id'],
+        ['general/site/name', 'site_name'],
+        ['self_service/use_for_self_service', 'self_service'],
+        ['package_configuration/packages/size', 'pak_count'],
+        ['scripts/size', 'script_count'],
+    ]
 
 _pol_pak_keys = [
     'id',

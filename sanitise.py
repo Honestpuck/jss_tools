@@ -6,13 +6,14 @@
 import jss_tools as tools
 import random
 
-jss = tools.Jopen(True)
 surnames = []
-for line in open('/Users/u398570/dev/bits/surnames.txt', 'r'):
+for line in open('/Users/tonyw/dev/bits/surnames.txt', 'r'):
     surnames.append(line.strip())
 firsts = []
-for line in open('/Users/u398570/dev/bits/first.txt', 'r'):
+for line in open('/Users/tonyw/dev/bits/first.txt', 'r'):
     firsts.append(line.strip())
+
+jss = tools.Jopen(True)
 
 for entry in jss.Computer():
     computer = entry.retrieve()
@@ -31,4 +32,3 @@ for entry in jss.Computer():
     info['serial'] = new_serial
     info['user'] = first + surname[0]
     tools.c_info_write(info, computer)
-    print "Sanitised to: ", info['name']

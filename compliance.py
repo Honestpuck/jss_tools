@@ -36,7 +36,7 @@ def check_one(info):
         return
 
 
-j = Jopen(True)
+j = Jopen()
 
 for computer in j.Computer():
     check_one(c_info(computer.retrieve()))
