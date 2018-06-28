@@ -7,7 +7,7 @@ At their core they turn the XML from the JSS into python data structures. It als
 Included are a small number of utility routines, most notably `convert` to convert strings to python data types, `Jopen` to open up a connection to the JSS, `c_attributes_write` to write changed extension attributes in a computer record back to the JSS and `c_info_write` to write changed computer info back to the JSS.
 
 *This is currently under development. At the moment it is working
-and passing all tests.* The master branch is be working, the other branches may not be.
+and passing all tests.* The master branch is working, the other branches may not be.
 
 For details on the functions `pydoc ./jss_tools.py` will get you the
 documentation.
@@ -30,7 +30,7 @@ reasons.
 
 #### examples.py
 
-A tiny file with an example of the new style. `old.py` contains the old code.
+A tiny file with an example of the new style.
 
 ### compliance.py
 
@@ -39,5 +39,15 @@ and build so I gave them the output of this.
 
 #### test.py
 
-My code to test the script.
+My code to test the script. It's not really comprehensive but it does the job.
+
+### Notes
+
+I'm reaching out for any users who can provide feedback. Seriously, criticisms and suggestions happily accepted.
+
+Better documentation is in the works. I will also be providing more examples of what can be easily done in Python with `jss_tools`
+
+
+
+
 
