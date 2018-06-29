@@ -28,6 +28,10 @@ contains 'True', 'False', '1' or '0' I convert it to a boolean and convert it
 back if required. I don't check the type 'Number' for 0 or 1 for obvious
 reasons.
 
+#### doco.md
+
+First cut at some documentation a little better than the docstrings.
+
 #### examples.py
 
 A tiny file with an example of the new style.
