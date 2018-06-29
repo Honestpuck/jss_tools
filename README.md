@@ -7,7 +7,7 @@ At their core they turn the XML from the JSS into python data structures. It als
 Included are a small number of utility routines, most notably `convert` to convert strings to python data types, `Jopen` to open up a connection to the JSS, `c_attributes_write` to write changed extension attributes in a computer record back to the JSS and `c_info_write` to write changed computer info back to the JSS.
 
 *This is currently under development. At the moment it is working
-and passing all tests.* The master branch is working, the other branches may not be.
+and passing all tests.* The master branch is working, the other branches may not be. UTC and Epoch dates are not converting back 100% at themoment. Since they are only used in certificates and can be considered read only this is not considered critical. There is already an issue open for this.
 
 For details on the functions `pydoc ./jss_tools.py` will get you the
 documentation.
