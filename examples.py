@@ -55,13 +55,13 @@ for record in computer_list:
 for record in computer_list:
     computer = record.retrieve()
     attribute = tools.attributes(computer)
-    if not attribute['SIP Disabled']['value']:
+    if not attribute['SIP Enabled']['value']:
         non_compliance(computer, 'SIP status')
         break
     if not attribute['Virus Running']['value']:
         non_compliance(computer, 'Virus')
         break
-    if not attribute['Internet Sharing Disabled']:
+    if not attribute['Internet Sharing Disabled']['value']:
         non_compliance(computer, 'Internet Sharing')
         break
 

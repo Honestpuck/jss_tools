@@ -38,13 +38,13 @@ NOTE: The conversions DATE, DUTC and TIME use the parser routine from dateutils 
 #### Convert_back(val, typ)
 The reverse of convert. Takes a python variable and converts it to a string ready for the JSS.
 
-#### Jopen(pref=None)
-Open a connection to the JSS. Asks for your password, returns connector. If you want to enter the URL and user pass it 'True'.
+####     Jopen(pref=None, pword=None)
+Open a connection to the JSS. Asks for your password, returns connector. If you want to enter the URL and user pass it pref='True'. If you are running non-interactive pass it pword='password'
 
 #### Now()
 right now in datetime format.
 
-The sole purpose of this function is to remove the need to import 'datetime' in your code and remember that it is `datetime.datetime.now()` just so we can get right now for comparison purposes. Yes, OK, I'm lazy.
+The sole purpose of this function is to remove the need to import 'datetime' in your code and remember that it is `datetime.datetime.now()` just so we can get right now for comparison purposes.
 
 ### Functions for the `computer` record
 

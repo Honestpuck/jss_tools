@@ -107,16 +107,21 @@ def Now():
     return datetime.datetime.now()
 
 
-def Jopen(pref=None):
-    """Open a connection to the JSS. Asks for your password,
+def Jopen(pref=None, pword=None):
+    """
+    Open a connection to the JSS. Asks for your password,
     returns connector. If you want to enter the URL and user
-    pass it 'True'.
+    pass it pref='True'. If you are running non-interactive pass
+    it pword='password'
     """
     jss_prefs = jss.JSSPrefs()
     if pref:
         jss_prefs.url = raw_input("URL: ")
         jss_prefs.user = raw_input("User: ")
-    jss_prefs.password = getpass.getpass()
+    if pword:
+        jss_prefs.password = pword
+    else:
+        jss_prefs.password = getpass.getpass()
     return jss.JSS(jss_prefs)
 
 
