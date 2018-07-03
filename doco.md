@@ -135,6 +135,31 @@ Returns a dictionary of info about a category.
 #### computergroup(group)
 Returns a dictionary of info about a computergroup. The key 'criteria' contains an array of dictionaries with the group membership criteria and the key 'computers' contains the same for the computers that are members of the group.
 
+Keys are:
+ - id
+ - name
+ - smart - If it's smart group
+ - site_id
+ - site_name
+ - crit_count - number of criteria
+ - computers_count
+ - criteria - dictionary containing all the criteria
+ - computers - dictionary of the computers in the group
+
+For criteria the keys are:
+ - name
+ - priority
+ - and_or
+ - search_type
+ - value
+
+For computers the keys are:
+ - id
+ - name
+ - mac_address
+ - alt_mac_address - The second MAC address
+ - serial
+
 #### package(package)
 Returns a dictionary of info about a package.
 
@@ -162,6 +187,30 @@ Keys are:
 
 #### policy(policy)
 Returns a dictionary of info about a policy. The key 'paks' is an array of dictionaries with info on the packages included in the policy and the key 'scripts' does the same for scripts.
+
+Keys are:
+ - id
+ - name
+ - enabled
+ - trigger
+ - checkin - trigger on checkin
+ - enrollment - trigger on enrollment
+ - login - trigger on login
+ - logout - trigger on logout
+ - network - trigger on network state change
+ - startup - trigger on startup
+ - other - trigger on other
+ - frequency
+ - cat_id - category ID
+ - cat_name - category name
+ - site_id
+ - site_name
+ - self_service - use for Self Service
+ - pak_count - count of the packages included
+ - script_count - count of the scripts included
+ - paks - dictionary of the packages
+ - scripts - dictionary of the scripts
+
 
 #### script(script)
 Returns a dictionary of info about a script.
