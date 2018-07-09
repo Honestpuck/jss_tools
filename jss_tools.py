@@ -44,6 +44,7 @@ from dateutil import parser
 import datetime
 import time
 import copy
+from xml.etree import ElementTree
 
 
 # some low level useful routines
@@ -84,17 +85,20 @@ def Convert_back(val, typ):
     """The reverse of convert. Takes a python variable and converts it to a
     string ready for the JSS.
     """
-    return {
-        'BOOL': lambda x: str(x).lower(),
-        'INTN': lambda x: str(x),
-        'DATE': lambda x: str(x),
-        'DUTC': lambda x: str(x),
-        'EPOK': lambda x: str(int((time.mktime(x.timetuple() * 1000)))),
-        'TIME': lambda x: str(x),
-        'STRG': lambda x: x,
-        'EBOL': lambda x: str(x),
-        'ENBL': lambda x: '1' if x else '0'
-    }[typ](val)
+    if val:
+        return {
+            'BOOL': lambda x: str(x).lower(),
+            'INTN': lambda x: str(x),
+            'DATE': lambda x: str(x),
+            'DUTC': lambda x: str(x),
+            'EPOK': lambda x: str(int((time.mktime(x.timetuple() * 1000)))),
+            'TIME': lambda x: str(x),
+            'STRG': lambda x: x,
+            'EBOL': lambda x: str(x),
+            'ENBL': lambda x: '1' if x else '0'
+        }[typ](val)
+    else:
+        return val
 
 
 def Now():
@@ -139,6 +143,8 @@ _c_info_keys = [
     ['general/barcode_2', 'barcode2'],
     ['general/asset_tag', 'tag'],
     ['general/remote_management/managed', 'managed'],
+    ['general/remote_management/management_username', 'man_username'],
+    ['general/remote_management/management_password_sha256', 'man_pass'],
     ['general/mdm_capable', 'mdm'],
     ['general/last_contact_time', 'last'],
     ['general/initial_entry_date', 'initial'],
@@ -298,6 +304,8 @@ def c_attributes(computer):
     the attribute name.The dictionary value is a dictionary with keys 'value'
     and 'type'.
     """
+    # this is starting to look a little ugly but a nicer way of hacking
+    # the boolean etension attributes doesn't spring to mind.
     dict = {}
     for attr in computer.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
@@ -332,6 +340,25 @@ def c_groups(computer):
     for group in computer.find('groups_accounts/computer_group_memberships'):
         ar.append(group.text)
     return ar
+
+
+def c_remote(computer, name, pword):
+    """ sets or unsets remote management. If you pass it just the computer
+    record it will set remote management to false and clear the password and
+    user. Pass it a name and password and it will set remote management on with
+    that user and password.
+    """
+    if name:
+        remote = computer.find('general/remote_management')
+        add = ElementTree.SubElement(remote, "management_password")
+        add.text = pword
+        computer.find('general/remote_management/managed').text = 'true'
+        computer.find('general/remote_management/management_username').text = name
+        computer.save()
+    else:
+        computer.find('general/remote_management/managed').text = 'false'
+        computer.find('general/remote_management/management_username').text = ""
+        computer.find('general/remote_management/management_password_sha256').text = ""
 
 
 _c_user_keys = [
@@ -670,3 +697,178 @@ def category(category):
         dict.update({key: category.findtext(key)})
     dict['priority'] = Convert(dict['priority'], 'INTN')
     return dict
+
+
+#
+# iOS
+#
+
+_mobiledevices_keys = [
+    'id',
+    'name',
+    'device_name',
+    'udid',
+    'serial-number',
+    'phone_number',
+    'wifi_mac_address',
+    'managed',
+    'supervised',
+    'model',
+    'model_identifier',
+    'model_display',
+    'username',
+]
+
+def mobiledevices(devices):
+    ar = []
+    for computer in devices.findall('mobile_devices/mobile_device'):
+        dict = {}
+        for key in _mobiledevices_keys:
+            dict.update({key: category.findtext(key)})
+        dict['supervised'] = Convert(dict['supervised'], 'BOOL')
+        dict['managed'] = Convert(dict['managed'], 'BOOL')
+        ar.append(dict)
+    return ar
+
+_m_info_keys = [
+    ['id', 'id'],
+    ['display_name', 'display_name'],
+    ['device_name', 'device_name'],
+    ['name', 'name'],
+    ['asset_tag', 'asset_tag'],
+    ['last_inventory_update', 'last_inventory'],
+    ['last_inventory_update_epoch', 'last_inventory_epoch'],
+    ['last_inventory_update_utc', 'last_inventory_utc'],
+    ['capacity', 'capacity'],
+    ['available', 'available'],
+    ['percentage_used', 'percentage_used'],
+    ['os_type', 'os_type'],
+    ['os_version', 'os_version'],
+    ['os_build', 'os_build'],
+    ['serial_number', 'serial_number'],
+    ['udid', 'udid'],
+    ['initial_entry_date_epoch', 'initial_entry_epoch'],
+    ['initial_entry_date_utc', 'initial_entry_utc'],
+    ['phone_number', 'phone_number'],
+    ['ip_address', 'ip_address'],
+    ['wifi_mac_address', 'wifi_mac_address'],
+    ['bluetooth_mac_address', 'bluetooth_mac_address'],
+    ['modem_firmware', 'modem_firmware'],
+    ['model', 'model'],
+    ['model_identifier', 'model_identifier'],
+    ['model_number', 'model_number'],
+    ['model_display', 'model_display'],
+    ['device_ownership_level', 'device_ownership_level'],
+    ['last_enrollment_epoch', 'last_enrollment_epoch'],
+    ['last_enrollment_utc', 'last_enrollment_utc'],
+    ['managed', 'managed'],
+    ['supervised', 'supervised'],
+    ['exchange_activesync_device_identifier', 'activesync_id'],
+    ['shared', 'shared'],
+    ['tethered', 'tethered'],
+    ['ble_capable', 'ble_capable'],
+    ['device_locator_service_enabled', 'locator_enabled'],
+    ['do_not_disturb_enabled', 'do_not_disturb_enabled'],
+    ['cloud_backup_enabled', 'cloud_backup_enabled'],
+    ['last_cloud_backup_date_epoch', 'last_cloud_backupe_epoch'],
+    ['last_cloud_backup_date_utc', 'last_cloud_backup_utc'],
+    ['location_services_enabled', 'location_services_enabled'],
+    ['itunes_store_account_is_active', 'itunes_account_is_active'],
+    ['last_backup_time_epoch', 'last_backup_time_epoch'],
+    ['last_backup_time_utc', 'last_backup_time_utc'],
+    ['site/id', 'site_id'],
+    ['site/name', 'site_name'],
+    ['location/username', 'username'],
+    ['location/realname', 'realname'],
+    ['location/real_name', 'real_name'],
+    ['location/email_address', 'email_address'],
+    ['location/position', 'position'],
+    ['location/phone', 'phone'],
+    ['location/phone_number', 'phone_number'],
+    ['location/department', 'department'],
+    ['location/building', 'building'],
+    ['location/room', 'room'],
+]
+
+_m_info_convert_keys = [
+    ['last_inventory', 'DATE'],
+    ['last_inventory_epoch', 'EPOK'],
+    ['last_inventory_utc', 'DUTC'],
+    ['capacity', 'INTN'],
+    ['available', 'INTN'],
+    ['percentage_used', 'INTN'],
+    ['last_enrollment_epoch', 'EPOK'],
+    ['last_enrollment_utc', 'DUTC'],
+    ['managed', 'BOOL'],
+    ['supervised', 'BOOL'],
+    ['shared', 'BOOL'],
+    ['tethered', 'BOOL'],
+    ['ble_capable', 'BOOL'],
+    ['locator_enabled', 'BOOL'],
+    ['do_not_disturb_enabled', 'BOOL'],
+    ['cloud_backup_enabled', 'BOOL'],
+    ['last_cloud_backupe_epoch', 'EPOK'],
+    ['last_cloud_backup_utc', 'DUTC'],
+    ['location_services_enabled', 'BOOL'],
+    ['itunes_account_is_active', 'BOOL'],
+    ['last_backup_time_epoch', 'EPOK'],
+    ['last_backup_time_utc', 'UTC'],
+]
+
+
+def m_info(device):
+    """Returns a a dictionary of general information about an iOS device.
+    """
+    dict = {}
+    for key in _m_info_keys:
+        dict.update({key[1]: device.findtext(key[0])})
+    for cc in _m_info_convert_keys:
+        dict[cc[0]] = Convert(dict[cc[0]], cc[1])
+    return dict
+
+
+def m_attributes(device):
+    """Returns a dictionary of the device's extension attributes. Key is
+    the attribute name.The dictionary value is a dictionary with keys 'value'
+    and 'type'.
+    """
+    dict = {}
+    for attr in device.findall('extension_attributes/extension_attribute'):
+        nm = attr.findtext('name')
+        ty = attr.findtext('type')
+        typ = _c_attr_types[ty]
+        if typ == 'STRG' & val in ['True', 'False']:
+            typ = 'EBOL'
+        if typ == 'STRG' & val in ['0', '1']:
+            typ = 'ENBL'
+        vl = Convert(attr.findtext('value'), typ)
+        dict.update({nm: {'value': vl, 'type': typ}})
+    return dict
+
+def m_info_write(info, device):
+    """Writes out any changed device info. Pass it the info
+    dictionary with changed info and the object returned from
+    jss.mobiledevice()
+    """
+    our_info = copy.deepcopy(info)
+    for key in _m_info_convert_keys:
+        our_info[key[0]] = Convert_back(our_info[key[0]], key[1])
+    for key in _m_info_keys:
+        device.find(key[0]).text = our_info[key[1]]
+    device.save()
+
+def m_attributes_write(attribs, computer):
+    """Writes out any changed extension attributes. Pass it the attribute
+    dictionary with changed attributes and object returned from
+    jss.mobiledevice()
+    """
+    for attr in computer.findall('extension_attributes/extension_attribute'):
+        nm = attr.findtext('name')
+        val = attr.findtext('value')
+        if attribs[nm]['value'] != val:
+            new_val = Convert_back(attribs[nm]['value'], attribs[nm]['type'])
+            attr.find('value').text = new_val
+    device.save()
+
+
+
