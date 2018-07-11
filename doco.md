@@ -18,6 +18,10 @@ You will neeed python-jss working. Details at https://github.com/sheagcraig/pyth
 
 JAMF do not support an extension attribute boolean type. A boolean type is so useful in programming that I fake it. If you have an EA of type 'String' that contains 'True', 'False', '1' or '0' I convert it to a boolean and convert it back if required. I don't check the type 'Number' for 0 or 1 for obvious reasons.
 
+### A Note On The Managed flag
+
+If you go in to your JAMF dashboard and select a computer you can edit 'General' and turn on 'Allow Jamf Pro to perform management tasks' as long as you set a username and password. Doing this via the API requires you to add an XML element to send the password as you send it in plain but the JSS will only ever return it to you as a SHA256 which I supply to you in the key `man_pass'. To get around the XML problem I have included the function `c_remote` which allows you to easily turn this on or off.
+
 ## Functions
 
 #### Convert(val, typ)
@@ -46,7 +50,7 @@ right now in datetime format.
 
 The sole purpose of this function is to remove the need to import 'datetime' in your code and remember that it is `datetime.datetime.now()` just so we can get right now for comparison purposes.
 
-### Functions for the `computer` record
+## Functions for the `computer` record
 
 I have split the `computer` record into 7 different functions to make it easier to handle rather than a deeper structure.
 
@@ -127,7 +131,10 @@ Keys are:
  - administrator
  - file_vault_enabled
 
-### Other JSS record types
+#### def c_remote(computer, name, pword)
+Sets or unsets remote management. If you pass it just the computer record it will set remote management to false and clear the password and user. Pass it name and password and it will set remote management on with that user and password.
+
+## Other JSS record types
 
 #### category(category)
 Returns a dictionary of info about a category.
@@ -215,6 +222,6 @@ Keys are:
 #### script(script)
 Returns a dictionary of info about a script.
 
-
+## iOS routines
 
 _

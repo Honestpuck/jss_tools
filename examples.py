@@ -18,7 +18,7 @@ def non_compliance(rec, reason):
     printf("%s\t%s", name, reason)
 
 
-# old way
+#    old way
 for computer in computer_list:
     this_computer = computer.retrieve()
     for attribute in this_computer.findall(

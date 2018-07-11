@@ -30,6 +30,10 @@ contains 'True', 'False', '1' or '0' I convert it to a boolean and convert it
 back if required. I don't check the type 'Number' for 0 or 1 for obvious
 reasons.
 
+## A Note On Remote Management
+
+To turn on remote management for a computer you need to do three things, set the field to true and supply a management name and password. The password is passed as plain text and converted to SHA256 by the JSS before storage. The plain password field is missing from the XML so this requires some fiddling. There is a special function `c_remote` that handles it.
+
 #### doco.md
 
 First cut at some documentation a little better than the docstrings.

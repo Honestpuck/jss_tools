@@ -73,7 +73,7 @@ def Convert(val, typ):
         'INTN': lambda x: int(x),
         'DATE': lambda x: parser.parse(x),
         'DUTC': lambda x: parser.parse(x),
-        'EPOK': lambda x: datetime.datetime.fromtimestamp(x/1000),
+        'EPOK': lambda x: datetime.datetime.fromtimestamp(int(x)/1000),
         'TIME': lambda x: parser.parse(x),
         'STRG': lambda x: x,
         'EBOL': lambda x: x == 'True',
@@ -310,13 +310,13 @@ def c_attributes(computer):
     for attr in computer.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
         ty = attr.findtext('type')
+        val = attr.findtext('value')
         typ = _c_attr_types[ty]
         if typ == 'STRG' & val in ['True', 'False']:
             typ = 'EBOL'
         if typ == 'STRG' & val in ['0', '1']:
             typ = 'ENBL'
-        vl = Convert(attr.findtext('value'), typ)
-        dict.update({nm: {'value': vl, 'type': typ}})
+        dict.update({nm: {'value': Convert(val, typ), 'type': typ}})
     return dict
 
 
@@ -731,63 +731,63 @@ def mobiledevices(devices):
     return ar
 
 _m_info_keys = [
-    ['id', 'id'],
-    ['display_name', 'display_name'],
-    ['device_name', 'device_name'],
-    ['name', 'name'],
-    ['asset_tag', 'asset_tag'],
-    ['last_inventory_update', 'last_inventory'],
-    ['last_inventory_update_epoch', 'last_inventory_epoch'],
-    ['last_inventory_update_utc', 'last_inventory_utc'],
-    ['capacity', 'capacity'],
-    ['available', 'available'],
-    ['percentage_used', 'percentage_used'],
-    ['os_type', 'os_type'],
-    ['os_version', 'os_version'],
-    ['os_build', 'os_build'],
-    ['serial_number', 'serial_number'],
-    ['udid', 'udid'],
-    ['initial_entry_date_epoch', 'initial_entry_epoch'],
-    ['initial_entry_date_utc', 'initial_entry_utc'],
-    ['phone_number', 'phone_number'],
-    ['ip_address', 'ip_address'],
-    ['wifi_mac_address', 'wifi_mac_address'],
-    ['bluetooth_mac_address', 'bluetooth_mac_address'],
-    ['modem_firmware', 'modem_firmware'],
-    ['model', 'model'],
-    ['model_identifier', 'model_identifier'],
-    ['model_number', 'model_number'],
-    ['model_display', 'model_display'],
-    ['device_ownership_level', 'device_ownership_level'],
-    ['last_enrollment_epoch', 'last_enrollment_epoch'],
-    ['last_enrollment_utc', 'last_enrollment_utc'],
-    ['managed', 'managed'],
-    ['supervised', 'supervised'],
-    ['exchange_activesync_device_identifier', 'activesync_id'],
-    ['shared', 'shared'],
-    ['tethered', 'tethered'],
-    ['ble_capable', 'ble_capable'],
-    ['device_locator_service_enabled', 'locator_enabled'],
-    ['do_not_disturb_enabled', 'do_not_disturb_enabled'],
-    ['cloud_backup_enabled', 'cloud_backup_enabled'],
-    ['last_cloud_backup_date_epoch', 'last_cloud_backupe_epoch'],
-    ['last_cloud_backup_date_utc', 'last_cloud_backup_utc'],
-    ['location_services_enabled', 'location_services_enabled'],
-    ['itunes_store_account_is_active', 'itunes_account_is_active'],
-    ['last_backup_time_epoch', 'last_backup_time_epoch'],
-    ['last_backup_time_utc', 'last_backup_time_utc'],
-    ['site/id', 'site_id'],
-    ['site/name', 'site_name'],
-    ['location/username', 'username'],
-    ['location/realname', 'realname'],
-    ['location/real_name', 'real_name'],
-    ['location/email_address', 'email_address'],
-    ['location/position', 'position'],
-    ['location/phone', 'phone'],
-    ['location/phone_number', 'phone_number'],
-    ['location/department', 'department'],
-    ['location/building', 'building'],
-    ['location/room', 'room'],
+    ['general/id', 'id'],
+    ['general/display_name', 'display_name'],
+    ['general/device_name', 'device_name'],
+    ['general/name', 'name'],
+    ['general/asset_tag', 'asset_tag'],
+    ['general/last_inventory_update', 'last_inventory'],
+    ['general/last_inventory_update_epoch', 'last_inventory_epoch'],
+    ['general/last_inventory_update_utc', 'last_inventory_utc'],
+    ['general/capacity', 'capacity'],
+    ['general/available', 'available'],
+    ['general/percentage_used', 'percentage_used'],
+    ['general/os_type', 'os_type'],
+    ['general/os_version', 'os_version'],
+    ['general/os_build', 'os_build'],
+    ['general/serial_number', 'serial_number'],
+    ['general/udid', 'udid'],
+    ['general/initial_entry_date_epoch', 'initial_entry_epoch'],
+    ['general/initial_entry_date_utc', 'initial_entry_utc'],
+    ['general/phone_number', 'phone_number'],
+    ['general/ip_address', 'ip_address'],
+    ['general/wifi_mac_address', 'wifi_mac_address'],
+    ['general/bluetooth_mac_address', 'bluetooth_mac_address'],
+    ['general/modem_firmware', 'modem_firmware'],
+    ['general/model', 'model'],
+    ['general/model_identifier', 'model_identifier'],
+    ['general/model_number', 'model_number'],
+    ['general/model_display', 'model_display'],
+    ['general/device_ownership_level', 'device_ownership_level'],
+    ['general/last_enrollment_epoch', 'last_enrollment_epoch'],
+    ['general/last_enrollment_utc', 'last_enrollment_utc'],
+    ['general/managed', 'managed'],
+    ['general/supervised', 'supervised'],
+    ['general/exchange_activesync_device_identifier', 'activesync_id'],
+    ['general/shared', 'shared'],
+    ['general/tethered', 'tethered'],
+    ['general/ble_capable', 'ble_capable'],
+    ['general/device_locator_service_enabled', 'locator_enabled'],
+    ['general/do_not_disturb_enabled', 'do_not_disturb_enabled'],
+    ['general/cloud_backup_enabled', 'cloud_backup_enabled'],
+    ['general/last_cloud_backup_date_epoch', 'last_cloud_backupe_epoch'],
+    ['general/last_cloud_backup_date_utc', 'last_cloud_backup_utc'],
+    ['general/location_services_enabled', 'location_services_enabled'],
+    ['general/itunes_store_account_is_active', 'itunes_account_is_active'],
+    ['general/last_backup_time_epoch', 'last_backup_time_epoch'],
+    ['general/last_backup_time_utc', 'last_backup_time_utc'],
+    ['general/site/id', 'site_id'],
+    ['general/site/name', 'site_name'],
+    ['general/location/username', 'username'],
+    ['general/location/realname', 'realname'],
+    ['general/location/real_name', 'real_name'],
+    ['general/location/email_address', 'email_address'],
+    ['general/location/position', 'position'],
+    ['general/location/phone', 'phone'],
+    ['general/location/phone_number', 'phone_number'],
+    ['general/location/department', 'department'],
+    ['general/location/building', 'building'],
+    ['general/location/room', 'room'],
 ]
 
 _m_info_convert_keys = [
@@ -812,7 +812,7 @@ _m_info_convert_keys = [
     ['location_services_enabled', 'BOOL'],
     ['itunes_account_is_active', 'BOOL'],
     ['last_backup_time_epoch', 'EPOK'],
-    ['last_backup_time_utc', 'UTC'],
+    ['last_backup_time_utc', 'DUTC'],
 ]
 
 
@@ -822,8 +822,8 @@ def m_info(device):
     dict = {}
     for key in _m_info_keys:
         dict.update({key[1]: device.findtext(key[0])})
-    for cc in _m_info_convert_keys:
-        dict[cc[0]] = Convert(dict[cc[0]], cc[1])
+    for dd in _m_info_convert_keys:
+        dict[dd[0]] = Convert(dict[dd[0]], dd[1])
     return dict
 
 
@@ -836,14 +836,15 @@ def m_attributes(device):
     for attr in device.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
         ty = attr.findtext('type')
+        val = attr.findtext('value')
         typ = _c_attr_types[ty]
         if typ == 'STRG' & val in ['True', 'False']:
             typ = 'EBOL'
         if typ == 'STRG' & val in ['0', '1']:
             typ = 'ENBL'
-        vl = Convert(attr.findtext('value'), typ)
-        dict.update({nm: {'value': vl, 'type': typ}})
+        dict.update({nm: {'value': Convert(val, typ), 'type': typ}})
     return dict
+
 
 def m_info_write(info, device):
     """Writes out any changed device info. Pass it the info
@@ -856,6 +857,7 @@ def m_info_write(info, device):
     for key in _m_info_keys:
         device.find(key[0]).text = our_info[key[1]]
     device.save()
+
 
 def m_attributes_write(attribs, computer):
     """Writes out any changed extension attributes. Pass it the attribute
