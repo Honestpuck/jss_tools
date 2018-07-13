@@ -345,18 +345,18 @@ def c_groups(computer):
     return ar
 
 
-def c_remote(computer, name, pword):
+def c_remote(computer, nm, pword):
     """ sets or unsets remote management. If you pass it just the computer
     record it will set remote management to false and clear the password and
     user. Pass it a name and password and it will set remote management on with
     that user and password.
     """
-    if name:
+    if nm:
         remote = computer.find('general/remote_management')
         add = ElementTree.SubElement(remote, "management_password")
         add.text = pword
         computer.find('general/remote_management/managed').text = 'true'
-        computer.find('general/remote_management/management_username').text = name
+        computer.find('general/remote_management/management_username').text = nm
         computer.save()
     else:
         computer.find('general/remote_management/managed').text = 'false'
@@ -499,27 +499,27 @@ def package(package):
     return dict
 
 
-    _pol_keys = [
-        ['general/id', 'id'],
-        ['general/name', 'name'],
-        ['general/enabled', 'enabled'],
-        ['general/trigger', 'trigger'],
-        ['general/trigger_checkin', 'checkin'],
-        ['general/trigger_enrollment_complete', 'enrollment'],
-        ['general/trigger_login', 'login'],
-        ['general/trigger_logout', 'logout'],
-        ['general/trigger_network_state_change', 'network'],
-        ['general/trigger_startup', 'startup'],
-        ['general/trigger_other', 'other'],
-        ['general/frequency', 'frequency'],
-        ['general/category/id', 'cat_id'],
-        ['general/category/name', 'cat_name'],
-        ['general/site/id', 'site_id'],
-        ['general/site/name', 'site_name'],
-        ['self_service/use_for_self_service', 'self_service'],
-        ['package_configuration/packages/size', 'pak_count'],
-        ['scripts/size', 'script_count'],
-    ]
+_pol_keys = [
+    ['general/id', 'id'],
+    ['general/name', 'name'],
+    ['general/enabled', 'enabled'],
+    ['general/trigger', 'trigger'],
+    ['general/trigger_checkin', 'checkin'],
+    ['general/trigger_enrollment_complete', 'enrollment'],
+    ['general/trigger_login', 'login'],
+    ['general/trigger_logout', 'logout'],
+    ['general/trigger_network_state_change', 'network'],
+    ['general/trigger_startup', 'startup'],
+    ['general/trigger_other', 'other'],
+    ['general/frequency', 'frequency'],
+    ['general/category/id', 'cat_id'],
+    ['general/category/name', 'cat_name'],
+    ['general/site/id', 'site_id'],
+    ['general/site/name', 'site_name'],
+    ['self_service/use_for_self_service', 'self_service'],
+    ['package_configuration/packages/size', 'pak_count'],
+    ['scripts/size', 'script_count'],
+]
 
 _pol_pak_keys = [
     'id',
@@ -722,6 +722,7 @@ _mobiledevices_keys = [
     'username',
 ]
 
+
 def mobiledevices(devices):
     ar = []
     for computer in devices.findall('mobile_devices/mobile_device'):
@@ -732,6 +733,7 @@ def mobiledevices(devices):
         dict['managed'] = Convert(dict['managed'], 'BOOL')
         ar.append(dict)
     return ar
+
 
 _m_info_keys = [
     ['general/id', 'id'],
@@ -797,7 +799,6 @@ _m_info_convert_keys = [
     ['available', 'INTN'],
     ['percentage_used', 'INTN'],
     ['last_enrollment_epoch', 'EPOK'],
-    ['last_enrollment_utc', 'DUTC'],
     ['managed', 'BOOL'],
     ['supervised', 'BOOL'],
     ['shared', 'BOOL'],
@@ -876,6 +877,7 @@ def m_attributes_write(attribs, device):
             attr.find('value').text = new_val
     device.save()
 
+
 _m_security_keys = [
     ['security/data_protection', 'data_protection'],
     ['security/block_level_encryption_capable', 'block_encrypt_capable'],
@@ -890,12 +892,10 @@ _m_security_keys = [
     ['security/lost_mode_enabled', 'lost_mode_enabled'],
     ['security/lost_mode_enforced', 'lost_mode_enforced'],
     ['security/lost_mode_enable_issued_epoch', 'lost_issued_epoch'],
-    ['security/lost_mode_enable_issued_utc', 'lost_issued_utc'],
     ['security/lost_mode_message', 'lost_mode_message'],
     ['security/lost_mode_phone', 'lost_mode_phone'],
     ['security/lost_mode_footnote', 'lost_mode_footnote'],
     ['security/lost_location_epoch', 'lost_location_epoch'],
-    ['security/lost_location_utc', 'lost_location_utc'],
     ['security/lost_location_latitude', 'lost_location_latitude'],
     ['security/lost_location_longitude', 'lost_location_longitude'],
     ['security/lost_location_altitude', 'lost_location_altitude'],
@@ -905,7 +905,7 @@ _m_security_keys = [
     ['security/lost_location_vertical_accuracy', 'lost_location_vertical_accuracy'],
 ]
 
-_m_security_keys = [
+_m_security_convert_keys = [
     ['data_protection',  'BOOL'],
     ['block_encrypt_capable',  'BOOL'],
     ['file_encrypt_capable',  'BOOL'],
@@ -918,9 +918,7 @@ _m_security_keys = [
     ['jailbreak_detected',  'BOOL'],
     ['lost_mode_enforced',  'BOOL'],
     ['lost_issued_epoch',  'EPOK'],
-    ['lost_issued_utc',  'DUTC'],
     ['lost_location_epoch',  'EPOK'],
-    ['lost_location_utc',  'DUTC'],
     ['lost_location_latitude',  'INTN'],
     ['lost_location_longitude',  'INTN'],
     ['lost_location_altitude',  'INTN'],
@@ -940,5 +938,3 @@ def m_security(device):
     for dd in _m_security_convert_keys:
         dict[dd[0]] = Convert(dict[dd[0]], dd[1])
     return dict
-
-
