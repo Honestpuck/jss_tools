@@ -60,6 +60,8 @@ def Convert(val, typ):
     'EBOL', A boolean extension attribute stored in a string 'True' or 'False'
     'ENBL', A boolean extension attribute stored in a string '1' or '0'
 
+    2018-07-02T16:06:50.653+1000
+
     The date routines and TIME return a datetime object.
 
     NOTE: The conversions DATE, DUTC and TIME use the parser routine from
@@ -90,8 +92,8 @@ def Convert_back(val, typ):
             'BOOL': lambda x: str(x).lower(),
             'INTN': lambda x: str(x),
             'DATE': lambda x: str(x),
-            'DUTC': lambda x: str(x),
-            'EPOK': lambda x: str(int((time.mktime(x.timetuple() * 1000)))),
+            'DUTC': lambda x: x.strftime("%Y-%m-%H:%M:S.%fT%X%z"),
+            'EPOK': lambda x: str(int((time.mktime(x.timetuple()) * 1000))),
             'TIME': lambda x: str(x),
             'STRG': lambda x: x,
             'EBOL': lambda x: str(x),
@@ -105,7 +107,8 @@ def Now():
     '''right now in datetime format.
 
     The sole purpose of this function is to remove the need to import
-    'datetime' in your code and remember that it is `datetime.datetime.now()`
+    'datetime' in your code and remember
+    that it is `datetime.datetime.now()`
     just so we can get right now for comparison purposes. Yes, OK, I'm lazy.
     '''
     return datetime.datetime.now()
@@ -312,9 +315,9 @@ def c_attributes(computer):
         ty = attr.findtext('type')
         val = attr.findtext('value')
         typ = _c_attr_types[ty]
-        if typ == 'STRG' & val in ['True', 'False']:
+        if typ == 'STRG' and val in ['True', 'False']:
             typ = 'EBOL'
-        if typ == 'STRG' & val in ['0', '1']:
+        if typ == 'STRG' and val in ['0', '1']:
             typ = 'ENBL'
         dict.update({nm: {'value': Convert(val, typ), 'type': typ}})
     return dict
@@ -738,7 +741,6 @@ _m_info_keys = [
     ['general/asset_tag', 'asset_tag'],
     ['general/last_inventory_update', 'last_inventory'],
     ['general/last_inventory_update_epoch', 'last_inventory_epoch'],
-    ['general/last_inventory_update_utc', 'last_inventory_utc'],
     ['general/capacity', 'capacity'],
     ['general/available', 'available'],
     ['general/percentage_used', 'percentage_used'],
@@ -760,7 +762,6 @@ _m_info_keys = [
     ['general/model_display', 'model_display'],
     ['general/device_ownership_level', 'device_ownership_level'],
     ['general/last_enrollment_epoch', 'last_enrollment_epoch'],
-    ['general/last_enrollment_utc', 'last_enrollment_utc'],
     ['general/managed', 'managed'],
     ['general/supervised', 'supervised'],
     ['general/exchange_activesync_device_identifier', 'activesync_id'],
@@ -775,25 +776,23 @@ _m_info_keys = [
     ['general/location_services_enabled', 'location_services_enabled'],
     ['general/itunes_store_account_is_active', 'itunes_account_is_active'],
     ['general/last_backup_time_epoch', 'last_backup_time_epoch'],
-    ['general/last_backup_time_utc', 'last_backup_time_utc'],
     ['general/site/id', 'site_id'],
     ['general/site/name', 'site_name'],
-    ['general/location/username', 'username'],
-    ['general/location/realname', 'realname'],
-    ['general/location/real_name', 'real_name'],
-    ['general/location/email_address', 'email_address'],
-    ['general/location/position', 'position'],
-    ['general/location/phone', 'phone'],
-    ['general/location/phone_number', 'phone_number'],
-    ['general/location/department', 'department'],
-    ['general/location/building', 'building'],
-    ['general/location/room', 'room'],
+    ['location/username', 'username'],
+    ['location/realname', 'realname'],
+    ['location/real_name', 'real_name'],
+    ['location/email_address', 'email_address'],
+    ['location/position', 'position'],
+    ['location/phone', 'phone'],
+    ['location/phone_number', 'phone_number'],
+    ['location/department', 'department'],
+    ['location/building', 'building'],
+    ['location/room', 'room'],
 ]
 
 _m_info_convert_keys = [
     ['last_inventory', 'DATE'],
     ['last_inventory_epoch', 'EPOK'],
-    ['last_inventory_utc', 'DUTC'],
     ['capacity', 'INTN'],
     ['available', 'INTN'],
     ['percentage_used', 'INTN'],
@@ -808,11 +807,9 @@ _m_info_convert_keys = [
     ['do_not_disturb_enabled', 'BOOL'],
     ['cloud_backup_enabled', 'BOOL'],
     ['last_cloud_backupe_epoch', 'EPOK'],
-    ['last_cloud_backup_utc', 'DUTC'],
     ['location_services_enabled', 'BOOL'],
     ['itunes_account_is_active', 'BOOL'],
     ['last_backup_time_epoch', 'EPOK'],
-    ['last_backup_time_utc', 'DUTC'],
 ]
 
 
@@ -827,6 +824,26 @@ def m_info(device):
     return dict
 
 
+def m_info_write(info, device):
+    """Writes out any changed device info. Pass it the info
+    dictionary with changed info and the object returned from
+    jss.mobiledevice()
+    """
+    our_info = copy.deepcopy(info)
+    for key in _m_info_convert_keys:
+        our_info[key[0]] = Convert_back(info[key[0]], key[1])
+    for key in _m_info_keys:
+        device.find(key[0]).text = our_info[key[1]]
+    device.save()
+
+
+_m_attr_types = {
+    'String': 'STRG',
+    'Date': 'DATE',
+    'Number': 'INTN',
+}
+
+
 def m_attributes(device):
     """Returns a dictionary of the device's extension attributes. Key is
     the attribute name.The dictionary value is a dictionary with keys 'value'
@@ -837,34 +854,21 @@ def m_attributes(device):
         nm = attr.findtext('name')
         ty = attr.findtext('type')
         val = attr.findtext('value')
-        typ = _c_attr_types[ty]
-        if typ == 'STRG' & val in ['True', 'False']:
+        typ = _m_attr_types[ty]
+        if typ == 'STRG' and val in ['True', 'False']:
             typ = 'EBOL'
-        if typ == 'STRG' & val in ['0', '1']:
+        if typ == 'STRG' and val in ['0', '1']:
             typ = 'ENBL'
         dict.update({nm: {'value': Convert(val, typ), 'type': typ}})
     return dict
 
 
-def m_info_write(info, device):
-    """Writes out any changed device info. Pass it the info
-    dictionary with changed info and the object returned from
-    jss.mobiledevice()
-    """
-    our_info = copy.deepcopy(info)
-    for key in _m_info_convert_keys:
-        our_info[key[0]] = Convert_back(our_info[key[0]], key[1])
-    for key in _m_info_keys:
-        device.find(key[0]).text = our_info[key[1]]
-    device.save()
-
-
-def m_attributes_write(attribs, computer):
+def m_attributes_write(attribs, device):
     """Writes out any changed extension attributes. Pass it the attribute
     dictionary with changed attributes and object returned from
     jss.mobiledevice()
     """
-    for attr in computer.findall('extension_attributes/extension_attribute'):
+    for attr in device.findall('extension_attributes/extension_attribute'):
         nm = attr.findtext('name')
         val = attr.findtext('value')
         if attribs[nm]['value'] != val:
@@ -872,5 +876,69 @@ def m_attributes_write(attribs, computer):
             attr.find('value').text = new_val
     device.save()
 
+_m_security_keys = [
+    ['security/data_protection', 'data_protection'],
+    ['security/block_level_encryption_capable', 'block_encrypt_capable'],
+    ['security/file_level_encryption_capable', 'file_encrypt_capable'],
+    ['security/passcode_present', 'passcode_present'],
+    ['security/passcode_compliant', 'passcode_compliant'],
+    ['security/passcode_compliant_with_profile', 'passcode_compliant_with_profile'],
+    ['security/passcode_lock_grace_period_enforced', 'passcode_lock_grace_period_enforced'],
+    ['security/hardware_encryption', 'hardware_encryption'],
+    ['security/activation_lock_enabled', 'activation_lock_enabled'],
+    ['security/jailbreak_detected', 'jailbreak_detected'],
+    ['security/lost_mode_enabled', 'lost_mode_enabled'],
+    ['security/lost_mode_enforced', 'lost_mode_enforced'],
+    ['security/lost_mode_enable_issued_epoch', 'lost_issued_epoch'],
+    ['security/lost_mode_enable_issued_utc', 'lost_issued_utc'],
+    ['security/lost_mode_message', 'lost_mode_message'],
+    ['security/lost_mode_phone', 'lost_mode_phone'],
+    ['security/lost_mode_footnote', 'lost_mode_footnote'],
+    ['security/lost_location_epoch', 'lost_location_epoch'],
+    ['security/lost_location_utc', 'lost_location_utc'],
+    ['security/lost_location_latitude', 'lost_location_latitude'],
+    ['security/lost_location_longitude', 'lost_location_longitude'],
+    ['security/lost_location_altitude', 'lost_location_altitude'],
+    ['security/lost_location_speed', 'lost_location_speed'],
+    ['security/lost_location_course', 'lost_location_course'],
+    ['security/lost_location_horizontal_accuracy', 'lost_location_horizontal_accuracy'],
+    ['security/lost_location_vertical_accuracy', 'lost_location_vertical_accuracy'],
+]
+
+_m_security_keys = [
+    ['data_protection',  'BOOL'],
+    ['block_encrypt_capable',  'BOOL'],
+    ['file_encrypt_capable',  'BOOL'],
+    ['passcode_present',  'BOOL'],
+    ['passcode_compliant',  'BOOL'],
+    ['passcode_compliant_with_profile',  'BOOL'],
+    ['passcode_lock_grace_period_enforced',  'BOOL'],
+    ['hardware_encryption',  'INTN'],
+    ['activation_lock_enabled',  'BOOL'],
+    ['jailbreak_detected',  'BOOL'],
+    ['lost_mode_enforced',  'BOOL'],
+    ['lost_issued_epoch',  'EPOK'],
+    ['lost_issued_utc',  'DUTC'],
+    ['lost_location_epoch',  'EPOK'],
+    ['lost_location_utc',  'DUTC'],
+    ['lost_location_latitude',  'INTN'],
+    ['lost_location_longitude',  'INTN'],
+    ['lost_location_altitude',  'INTN'],
+    ['lost_location_speed',  'INTN'],
+    ['lost_location_course',  'INTN'],
+    ['lost_location_horizontal_accuracy',  'INTN'],
+    ['lost_location_vertical_accuracy',  'INTN'],
+]
+
+
+def m_security(device):
+    """Returns a a dictionary of general information about an iOS device.
+    """
+    dict = {}
+    for key in _m_security_keys:
+        dict.update({key[1]: device.findtext(key[0])})
+    for dd in _m_security_convert_keys:
+        dict[dd[0]] = Convert(dict[dd[0]], dd[1])
+    return dict
 
 
