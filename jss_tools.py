@@ -930,7 +930,7 @@ _m_security_convert_keys = [
 
 
 def m_security(device):
-    """Returns a a dictionary of general information about an iOS device.
+    """Returns a a dictionary of security information about an iOS device.
     """
     dict = {}
     for key in _m_security_keys:
@@ -938,3 +938,39 @@ def m_security(device):
     for dd in _m_security_convert_keys:
         dict[dd[0]] = Convert(dict[dd[0]], dd[1])
     return dict
+
+
+_m_network_keys = [
+    ['network/home_carrier_network', 'home_carrier_network'],
+    ['network/cellular_technology', 'cellular_technology'],
+    ['network/voice_roaming_enabled', 'voice_roaming_enabled'],
+    ['network/imei', 'imei'],
+    ['network/iccid', 'iccid'],
+    ['network/meid', 'meid'],
+    ['network/current_carrier_network', 'current_carrier_network'],
+    ['network/carrier_settings_version', 'carrier_settings_version'],
+    ['network/current_mobile_country_code', 'current_mobile_country_code'],
+    ['network/current_mobile_network_code', 'current_mobile_network_code'],
+    ['network/home_mobile_country_code', 'home_mobile_country_code'],
+    ['network/home_mobile_network_code', 'home_mobile_network_code'],
+    ['network/data_roaming_enabled', 'data_roaming_enabled'],
+    ['network/roaming', 'roaming'],
+    ['network/phone_number', 'phone_number'],
+]
+
+_m_network_convert_keys = [
+    ['voice_roaming_enabled', 'BOOL'],
+    ['data_roaming_enabled', 'BOOL'],
+    ['roaming', 'BOOL'],
+]
+
+def m_network(device):
+    """Returns a a dictionary of security information about an iOS device.
+    """
+    dict = {}
+    for key in _m_network_keys:
+        dict.update({key[1]: device.findtext(key[0])})
+    for dd in _m_network_convert_keys:
+        dict[dd[0]] = Convert(dict[dd[0]], dd[1])
+    return dict
+

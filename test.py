@@ -269,6 +269,42 @@ if (strg is tstrg) & (ebol is tebol) & (enbl is tenbl):
 else:
     print "Convert: Failed 3/3"
 
+### iOS side
+
+device = jss.MobileDevice(1)
+
+info = tools.m_info(device)
+
+if info['managed']:
+    print "Found managed iOS device"
+elif not info['managed']:
+    print "Found unmanaged iOS device"
+else:
+    print "m_info failed"
+
+keep = info['building']
+
+info['building'] = "TESTING"
+
+tools.m_info_write(info, device)
+
+device = jss.MobileDevice(1)
+
+info = tools.m_info(device)
+
+if info['building'] is "TESTING":
+    print "m_info_write: Passed"
+    info['building'] = keep
+    tools.m_info_write(info, device)
+else:
+    print "m_info_write: Failed"
+
+
+
+
+
+
+
 
 
 
