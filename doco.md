@@ -20,7 +20,7 @@ JAMF do not support an extension attribute boolean type. A boolean type is so us
 
 ### A Note On The Managed flag
 
-If you go in to your JAMF dashboard and select a computer you can edit 'General' and turn on 'Allow Jamf Pro to perform management tasks' as long as you set a username and password. Doing this via the API requires you to add an XML element to send the password as you send it in plain but the JSS will only ever return it to you as a SHA256 which I supply to you in the key `man_pass'. To get around the XML problem I have included the function `c_remote` which allows you to easily turn this on or off.
+If you go in to your JAMF dashboard and select a computer you can edit 'General' and turn on 'Allow Jamf Pro to perform management tasks' as long as you set a username and password. Doing this via the API requires you to add an XML element to send the password as you send it in plain but the JSS will only ever return it to you as a SHA256 which I supply to you in the key `man_pass`. To get around the XML problem I have included the function `c_remote` which allows you to easily turn this on or off.
 
 ### A Note On UTC Dates
 There are a number of dates in the JSS that are stored as both system epoch dates and UTC dates. The JSS is _incredibly_ fussy about what it will accept as a UTC date and will refuse an entire write if one is formatted wrong. Rather than fight this I have, in a couple of spots, just declined to read them at all where they woud be in a block that will get written back to the JSS. As an example as to how strict the JSS is "2018-07-02T16:06:50.653+1000" is acceptable while neither "2018-07-02T16:06:50.653+10:00" or "2018-07-02T16:06:50.653000+1000" are. Needless to say the datetime parser thinks all three are fine and dandy and returns exactly the same datetime.datetime object for them. Shame on you, JAMF. I will, eventually, come up with a solution but at the moment there isn't a single use case where having the epoch time converted to a datetime.datetime object isn't just as good as an identical UTC.
@@ -28,7 +28,7 @@ There are a number of dates in the JSS that are stored as both system epoch date
 ## Functions
 
 #### Convert(val, typ)
-Takes a string value from JSS converts it type 'typ''. `typ` is one of:
+Takes a string value from JSS converts it to type 'typ''. `typ` is one of:
  - 'BOOL', Boolean
  - 'DATE', Date
  - 'DUTC', Date with UTC timezone information
@@ -45,7 +45,7 @@ NOTE: The conversions DATE, DUTC and TIME use the parser routine from dateutils 
 #### Convert_back(val, typ)
 The reverse of convert. Takes a python variable and converts it to a string ready for the JSS.
 
-####     Jopen(pref=None, pword=None)
+#### Jopen(pref=None, pword=None)
 Open a connection to the JSS. Asks for your password, returns connector. If you want to enter the URL and user pass it pref='True'. If you are running non-interactive pass it pword='password'
 
 #### Now()
@@ -134,7 +134,7 @@ Keys are:
  - administrator
  - file_vault_enabled
 
-#### def c_remote(computer, name, pword)
+#### c_remote(computer, name, pword)
 Sets or unsets remote management. If you pass it just the computer record it will set remote management to false and clear the password and user. Pass it name and password and it will set remote management on with that user and password.
 
 ## Other JSS record types
@@ -192,7 +192,7 @@ Keys are:
  - install - install if reported available
  - reinstall - reinstall option
  - triggering - triggering files
- - send - send notificaitons
+ - send - send notifications
 
 
 #### policy(policy)
@@ -223,8 +223,23 @@ Keys are:
 
 
 #### script(script)
-Returns a dictionary of info about a script.
+Returns a dictionary of information about a script.
 
 ## iOS routines
 
-_
+Unlike the jss.Computer() call, which returns only the computer name and id, the call jss.Device() returns an array with some quite useful information for each device so I have the call m_devices().
+
+#### m_devices(devices)
+Returns an array of device info dictionaries.
+
+### m_info(device)
+Returns a dictionary of general info about a device. This is currently so large I'm considering splitting it.
+
+#### m_attributes(device)
+Returns a dictionary keyed on the attrribute name that returns a dictionary containing the 'value' and 'type'.
+
+
+
+
+
+

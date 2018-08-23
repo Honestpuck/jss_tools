@@ -3,9 +3,6 @@
 #
 # A bunch of code to test jss_tools.py
 #
-# NOTE: I test functions that write to the JSS by hand as I don't
-# want to bork my JSS - even my test one :)
-#
 
 import jss_tools as tools
 from random import randrange
@@ -244,15 +241,15 @@ strg = 'a string'
 ebol = 'True'
 enbl = '1'
 
-tbool = Convert_back(Convert(bol, 'BOOL'), 'BOOL')
-tdate = Convert_back(Convert(date, 'DATE'), 'DATE')
-tdutc = Convert_back(Convert(dutc, 'DUTC'), 'DUTC')
-tepok = Convert_back(Convert(epok, 'EPOK'), 'EPOK')
-tintn = Convert_back(Convert(intn, 'INTN'), 'INTN')
-ttime = Convert_back(Convert(tme, 'TIME'), 'TIME')
-tstrg = Convert_back(Convert(strg, 'STRG'), 'STRG')
-tebol = Convert_back(Convert(ebol, 'EBOL'), 'EBOL')
-tenbl = Convert_back(Convert(enbl, 'ENBL'), 'ENBL')
+tbool = tools.Convert_back(Convert(bol, 'BOOL'), 'BOOL')
+tdate = tools.Convert_back(Convert(date, 'DATE'), 'DATE')
+tdutc = tools.Convert_back(Convert(dutc, 'DUTC'), 'DUTC')
+tepok = tools.Convert_back(Convert(epok, 'EPOK'), 'EPOK')
+tintn = tools.Convert_back(Convert(intn, 'INTN'), 'INTN')
+ttime = tools.Convert_back(Convert(tme, 'TIME'), 'TIME')
+tstrg = tools.Convert_back(Convert(strg, 'STRG'), 'STRG')
+tebol = tools.Convert_back(Convert(ebol, 'EBOL'), 'EBOL')
+tenbl = tools.Convert_back(Convert(enbl, 'ENBL'), 'ENBL')
 
 if (bol is tbool) & (date is tdate) & (dutc is tdutc):
     print "Convert: Passed 1/3"
@@ -270,6 +267,14 @@ else:
     print "Convert: Failed 3/3"
 
 ### iOS side
+
+devices = jss.MobileDevice()
+
+dev = tools.m_devices(devices)
+
+d_name = dev[1]['name']
+
+print "Device List: Passed - ", d_name
 
 device = jss.MobileDevice(1)
 
@@ -298,17 +303,3 @@ if info['building'] is "TESTING":
     tools.m_info_write(info, device)
 else:
     print "m_info_write: Failed"
-
-
-
-
-
-
-
-
-
-
-
-
-
-

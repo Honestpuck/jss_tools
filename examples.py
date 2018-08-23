@@ -82,3 +82,4 @@ for computer in jss.Computer():
         ii = tools.c_info(mac)
         printf("ID: %s User: %s Email: %s\n",
                ii['id'], ii['name'], ii['email'])
+

@@ -723,12 +723,12 @@ _mobiledevices_keys = [
 ]
 
 
-def mobiledevices(devices):
+def m_devices(devices):
     ar = []
-    for computer in devices.findall('mobile_devices/mobile_device'):
+    for device in devices.findall('mobile_devices/mobile_device'):
         dict = {}
         for key in _mobiledevices_keys:
-            dict.update({key: category.findtext(key)})
+            dict.update({key: device.findtext(key)})
         dict['supervised'] = Convert(dict['supervised'], 'BOOL')
         dict['managed'] = Convert(dict['managed'], 'BOOL')
         ar.append(dict)
@@ -964,8 +964,9 @@ _m_network_convert_keys = [
     ['roaming', 'BOOL'],
 ]
 
+
 def m_network(device):
-    """Returns a a dictionary of security information about an iOS device.
+    """Returns a a dictionary of network information about an iOS device.
     """
     dict = {}
     for key in _m_network_keys:
