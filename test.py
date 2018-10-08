@@ -303,3 +303,30 @@ if info['building'] is "TESTING":
     tools.m_info_write(info, device)
 else:
     print "m_info_write: Failed"
+
+attr = tools.m_attributes(device)
+
+attr['TESTING'] = {'value': 'Tested', 'type':'STRG'}
+
+tools.m_attributes_write(attr, device)
+
+device = jss.MobileDevice(1)
+
+attr = tools.m_attributes(device)
+
+if attr['TESTING']['value'] = 'Tested':
+    print "m_attributes_write: Passed"
+else:
+    print "m_attributes_write: Failed"
+
+
+
+
+
+
+
+
+
+
+
+
