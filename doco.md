@@ -236,7 +236,15 @@ Returns an array of device info dictionaries.
 Returns a dictionary of general info about a device. This is currently so large I'm considering splitting it.
 
 #### m_attributes(device)
-Returns a dictionary keyed on the attrribute name that returns a dictionary containing the 'value' and 'type'.
+Returns a dictionary keyed on the attribute name that returns a dictionary containing the 'value' and 'type'.
+
+#### m_security(device)
+Returns a dictionary of security information.
+
+#### m_network(device)
+Returns a dictionary of network information.
+
+
 
 
 
